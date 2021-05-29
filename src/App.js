@@ -1,25 +1,21 @@
-import logo from './logo.svg';
 import './App.css';
 
+import { DndProvider, useDrag } from 'react-dnd';
+
+import Capture from './components/capture';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	return (
+		<DndProvider backend={HTML5Backend}>
+			<div className='App'>
+				<header className='App-header'>
+					<Capture />
+				</header>
+			</div>
+		</DndProvider>
+	);
 }
 
 export default App;
