@@ -295,7 +295,7 @@ const Capture = () => {
 				</div>
 				<div id='additionalButtons'>
 					<IconButton
-						color='primary'
+						color='secondary'
 						aria-label='upload picture'
 						component='span'
 						variant='contained'
