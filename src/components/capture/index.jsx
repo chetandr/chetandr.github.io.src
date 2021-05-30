@@ -132,44 +132,32 @@ const Capture = () => {
 		switch (count) {
 			case 0:
 				return bbox0;
-				break;
 			case 1:
 				return bbox1;
-				break;
 			case 2:
 				return bbox2;
-				break;
 			case 3:
 				return bbox3;
-				break;
 			case 4:
 				return bbox3;
-				break;
 			case 5:
 				return bbox3;
-				break;
 		}
 	};
 	const getDragWrapperRef = (count) => {
 		switch (count) {
 			case 0:
 				return bboxWrapper0;
-				break;
 			case 1:
 				return bboxWrapper1;
-				break;
 			case 2:
 				return bboxWrapper2;
-				break;
 			case 3:
 				return bboxWrapper3;
-				break;
 			case 4:
 				return bboxWrapper4;
-				break;
 			case 5:
 				return bboxWrapper5;
-				break;
 		}
 	};
 	const getBoundingBox = (count) => {
@@ -197,19 +185,15 @@ const Capture = () => {
 
 	const getCamera = useCallback(async () => {
 		const devices = await navigator.mediaDevices.enumerateDevices();
-		devices.map((device, index) => debugData[`Devices Info ${index}`] = device.label)
-		const videoDevices = devices.filter(
-			(device) => device.kind === 'videoinput',
-		);
+		devices.map((device, index) => (debugData[`Devices Info ${index}`] = device.label));
+		const videoDevices = devices.filter((device) => device.kind === 'videoinput');
 		// const debugData = { 'Devices Info': device };
-		let backDevice = videoDevices.filter(
-			(device) => device.label.indexOf('back') >= 0,
-		);
+		let backDevice = videoDevices.filter((device) => device.label.indexOf('back') >= 0);
 
-		if(backDevice.length === 0 && videoDevices.length > 1) {
-			backDevice = videoDevices[1];
+		if (backDevice.length === 0 && videoDevices.length > 1) {
+			backDevice = videoDevices[0];
 		}
-		
+
 		debugData['Has Back Camera'] = backDevice.length ? 'true' : 'false';
 		setDebugData(debugData);
 		// debug.append(div);
@@ -263,19 +247,19 @@ const Capture = () => {
 		canvas.current.width = window.innerWidth;
 		canvas.current.height = window.innerHeight;
 		context.drawImage(video.current, 0, 0, window.innerWidth, window.innerHeight);
-		context.font = "20px Roboto";
-		let cnt  = 0;
-		for(let key in bboxProperties) {
+		context.font = '20px Roboto';
+		let cnt = 0;
+		for (let key in bboxProperties) {
 			const contentText = `${key} : ${JSON.stringify(bboxProperties[key])}`;
-			context.strokeText(contentText, 10, 20 + (20*cnt), 1000);
-			cnt ++;
+			context.strokeText(contentText, 10, 20 + 20 * cnt, 1000);
+			cnt++;
 		}
 		const url = canvas.current.toDataURL('image/png');
 		photo.current.setAttribute('src', url);
 		downloadAnchor.current.href = url;
 		downloadAnchor.current.download = 'MyPhoto.png';
 		downloadAnchor.current.click();
-		// 
+		//
 		window.URL.revokeObjectURL(url);
 	};
 
@@ -370,7 +354,6 @@ const Capture = () => {
 					ref={bboxWrapper2}
 					onTouchStart={() => setCurrentBBox(bboxWrapper2)}
 					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
-
 				>
 					<div
 						className='boundingBox'
@@ -388,7 +371,6 @@ const Capture = () => {
 					ref={bboxWrapper3}
 					onTouchStart={() => setCurrentBBox(bboxWrapper3)}
 					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
-
 				>
 					<div
 						className='boundingBox'
@@ -406,7 +388,6 @@ const Capture = () => {
 					ref={bboxWrapper4}
 					onTouchStart={() => setCurrentBBox(bboxWrapper4)}
 					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
-
 				>
 					<div
 						className='boundingBox'
@@ -424,7 +405,6 @@ const Capture = () => {
 					ref={bboxWrapper5}
 					onTouchStart={() => setCurrentBBox(bboxWrapper5)}
 					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
-
 				>
 					<div
 						className='boundingBox'
