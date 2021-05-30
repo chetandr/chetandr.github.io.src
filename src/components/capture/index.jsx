@@ -10,7 +10,7 @@ const ItemTypes = {
 };
 
 const Capture = () => {
-	const debug = true;
+	const debug = false;
 	const allowedBBoxes = 2;
 	const video = useRef();
 	const canvas = useRef();
@@ -198,10 +198,18 @@ const Capture = () => {
 	const getCamera = useCallback(async () => {
 		const devices = await navigator.mediaDevices.enumerateDevices();
 		devices.map((device, index) => debugData[`Devices Info ${index}`] = device.label)
-		// const debugData = { 'Devices Info': device };
-		const backDevice = devices.filter(
-			(device) => device.kind === 'videoinput' && device.label.indexOf('back') >= 0,
+		const videoDevices = devices.filter(
+			(device) => device.kind === 'videoinput',
 		);
+		// const debugData = { 'Devices Info': device };
+		let backDevice = videoDevices.filter(
+			(device) => device.label.indexOf('back') >= 0,
+		);
+
+		if(backDevice.length === 0 && videoDevices.length > 1) {
+			backDevice = videoDevices[1];
+		}
+		
 		debugData['Has Back Camera'] = backDevice.length ? 'true' : 'false';
 		setDebugData(debugData);
 		// debug.append(div);
