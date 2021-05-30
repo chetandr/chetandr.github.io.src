@@ -130,53 +130,7 @@ const Capture = () => {
 		// drag.current.left = `${currentPosition.x}px`;
 		// drag.current.top = `${currentPosition.y}px`;
 	};
-	const getDragRef = (count) => {
-		switch (count) {
-			case 0:
-				return bbox0;
-			case 1:
-				return bbox1;
-			case 2:
-				return bbox2;
-			case 3:
-				return bbox3;
-			case 4:
-				return bbox3;
-			case 5:
-				return bbox3;
-		}
-	};
-	const getDragWrapperRef = (count) => {
-		switch (count) {
-			case 0:
-				return bboxWrapper0;
-			case 1:
-				return bboxWrapper1;
-			case 2:
-				return bboxWrapper2;
-			case 3:
-				return bboxWrapper3;
-			case 4:
-				return bboxWrapper4;
-			case 5:
-				return bboxWrapper5;
-		}
-	};
-	const getBoundingBox = (count) => {
-		const retBoundingBox = (
-			<div className='boundingBoxWrapper' ref={getDragWrapperRef[count]}>
-				<div
-					className='boundingBox'
-					ref={getDragRef(count)}
-					style={{
-						opacity: isDragging0 ? 0.5 : 1,
-						cursor: 'move',
-					}}
-				></div>
-			</div>
-		);
-		return retBoundingBox;
-	};
+
 	const getVideo = useCallback(
 		async (device) => {
 			try {
@@ -229,21 +183,6 @@ const Capture = () => {
 		setDebugData(debugData);
 		// debug.append(div);
 		if (backDevice.length) {
-			// let constraint = {
-			// 	video: {
-			// 		width: {
-			// 			min: 1280,
-			// 			ideal: 1920,
-			// 			max: 2560,
-			// 		},
-			// 		height: {
-			// 			min: 720,
-			// 			ideal: 1080,
-			// 			max: 1440,
-			// 		},
-			// 		deviceId: backDevice[0].deviceId,
-			// 	},
-			// };
 			getVideo(backDevice[0]);
 		} else {
 			getVideo(devices[0]);
@@ -298,7 +237,7 @@ const Capture = () => {
 		<>
 			{debug && <div id='debug'>Debug {getDebugData()}</div>}
 			<div className='container' ref={drop} onMouseMove={_onMouseMove}>
-				<video ref={video} id='video' playsInline autoPlay></video>
+				<video ref={video} id='video' autoPlay muted></video>
 				<div id='changeVideo'>
 					<IconButton
 						color='primary'
@@ -339,7 +278,6 @@ const Capture = () => {
 					ref={bboxWrapper0}
 					onTouchStart={() => setCurrentBBox(bboxWrapper0)}
 					onMouseDown={() => setCurrentBBox(bboxWrapper0)}
-
 				>
 					<div
 						className='boundingBox'
