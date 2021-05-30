@@ -1,3 +1,5 @@
+import * as CamerHelper from './cameraAccess';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDrag, useDragDropManager, useDrop } from 'react-dnd';
 
@@ -176,65 +178,81 @@ const Capture = () => {
 		return retBoundingBox;
 	};
 	const getVideo = useCallback(
-		async (constraint) => {
-			const mediaStream = await navigator.mediaDevices.getUserMedia(constraint);
-			video.current.srcObject = mediaStream;
+		async (device) => {
+			try {
+				const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
+				video.current.srcObject = mediaStream;
+			} catch (e) {
+				try {
+					const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(1, device);
+					video.current.srcObject = mediaStream;
+				} catch (e) {
+					try {
+						const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(2, device);
+						video.current.srcObject = mediaStream;
+					} catch (e) {
+						try {
+							const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(3, device);
+							video.current.srcObject = mediaStream;
+						} catch (e) {
+							try {
+								const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(4, device);
+								video.current.srcObject = mediaStream;
+							} catch (e) {
+								try {
+									const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(5, device);
+									video.current.srcObject = mediaStream;
+								} catch (e) {
+									try {
+										const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(
+											6,
+											device,
+										);
+										video.current.srcObject = mediaStream;
+									} catch (e) {}
+								}
+							}
+						}
+					}
+				}
+			}
 		},
 		[video, canvas, downloadAnchor, photo],
 	);
 
 	const getCamera = useCallback(async () => {
-		const devices = await navigator.mediaDevices.enumerateDevices();
-		devices.map((device, index) => (debugData[`Devices Info ${index}`] = device.label));
-		const videoDevices = devices.filter((device) => device.kind === 'videoinput');
+		const devices = await CamerHelper.CameraAccess.getCameras();
 		// const debugData = { 'Devices Info': device };
-		let backDevice = videoDevices.filter((device) => device.label.indexOf('back') >= 0);
-
-		if (backDevice.length === 0 && videoDevices.length > 1) {
-			backDevice = videoDevices[0];
-		}
+		let backDevice = devices.filter((device) => (device.cameraType = 'back'));
 
 		debugData['Has Back Camera'] = backDevice.length ? 'true' : 'false';
 		setDebugData(debugData);
 		// debug.append(div);
 		if (backDevice.length) {
-			let constraint = {
-				video: {
-					width: {
-						min: 1280,
-						ideal: 1920,
-						max: 2560,
-					},
-					height: {
-						min: 720,
-						ideal: 1080,
-						max: 1440,
-					},
-					deviceId: backDevice[0].deviceId,
-				},
-			};
-			getVideo(constraint);
+			// let constraint = {
+			// 	video: {
+			// 		width: {
+			// 			min: 1280,
+			// 			ideal: 1920,
+			// 			max: 2560,
+			// 		},
+			// 		height: {
+			// 			min: 720,
+			// 			ideal: 1080,
+			// 			max: 1440,
+			// 		},
+			// 		deviceId: backDevice[0].deviceId,
+			// 	},
+			// };
+			getVideo(backDevice[0]);
 		} else {
-			let constraint = {
-				video: {
-					width: {
-						min: 1280,
-						ideal: 1920,
-						max: 2560,
-					},
-					height: {
-						min: 720,
-						ideal: 1080,
-						max: 1440,
-					},
-				},
-			};
-			getVideo(constraint);
+			getVideo(devices[0]);
 		}
 	}, [getVideo]);
 
 	useEffect(() => {
 		getCamera();
+		// console.log(.then(cameras => console.log(cameras)));
 	}, [debug, video, canvas, downloadAnchor, photo, getCamera, getVideo]);
 	const addBBox = () => {
 		const newDisplayBox = { ...displayBox, [`disp${bboxCount}`]: true };
@@ -283,7 +301,7 @@ const Capture = () => {
 				<video ref={video} id='video' playsInline autoPlay></video>
 				<div id='changeVideo'>
 					<IconButton
-						color='secondary'
+						color='primary'
 						aria-label='upload picture'
 						component='span'
 						variant='contained'
@@ -320,6 +338,8 @@ const Capture = () => {
 					id='bbox0'
 					ref={bboxWrapper0}
 					onTouchStart={() => setCurrentBBox(bboxWrapper0)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper0)}
+
 				>
 					<div
 						className='boundingBox'
@@ -353,7 +373,7 @@ const Capture = () => {
 					id='bbox2'
 					ref={bboxWrapper2}
 					onTouchStart={() => setCurrentBBox(bboxWrapper2)}
-					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper2)}
 				>
 					<div
 						className='boundingBox'
@@ -370,7 +390,7 @@ const Capture = () => {
 					id='bbox3'
 					ref={bboxWrapper3}
 					onTouchStart={() => setCurrentBBox(bboxWrapper3)}
-					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper3)}
 				>
 					<div
 						className='boundingBox'
@@ -387,7 +407,7 @@ const Capture = () => {
 					id='bbox4'
 					ref={bboxWrapper4}
 					onTouchStart={() => setCurrentBBox(bboxWrapper4)}
-					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper4)}
 				>
 					<div
 						className='boundingBox'
@@ -404,7 +424,7 @@ const Capture = () => {
 					id='bbox5'
 					ref={bboxWrapper5}
 					onTouchStart={() => setCurrentBBox(bboxWrapper5)}
-					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper5)}
 				>
 					<div
 						className='boundingBox'
