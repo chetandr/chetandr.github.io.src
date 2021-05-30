@@ -10,7 +10,7 @@ const ItemTypes = {
 };
 
 const Capture = () => {
-	const debug = false;
+	const debug = true;
 	const allowedBBoxes = 2;
 	const video = useRef();
 	const canvas = useRef();
@@ -197,7 +197,8 @@ const Capture = () => {
 
 	const getCamera = useCallback(async () => {
 		const devices = await navigator.mediaDevices.enumerateDevices();
-		const debugData = { 'Devices Info': JSON.stringify(devices) };
+		devices.map((device, index) => debugData[`Devices Info ${index}`] = device.label)
+		// const debugData = { 'Devices Info': device };
 		const backDevice = devices.filter(
 			(device) => device.kind === 'videoinput' && device.label.indexOf('back') >= 0,
 		);
@@ -326,7 +327,7 @@ const Capture = () => {
 					className='boundingBoxWrapper0'
 					id='bbox0'
 					ref={bboxWrapper0}
-					onMouseDown={() => setCurrentBBox(bboxWrapper0)}
+					onTouchStart={() => setCurrentBBox(bboxWrapper0)}
 				>
 					<div
 						className='boundingBox'
@@ -342,6 +343,7 @@ const Capture = () => {
 					className='boundingBoxWrapper1'
 					id='bbox1'
 					ref={bboxWrapper1}
+					onTouchStart={() => setCurrentBBox(bboxWrapper1)}
 					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
 				>
 					<div
@@ -358,7 +360,9 @@ const Capture = () => {
 					className='boundingBoxWrapper2'
 					id='bbox2'
 					ref={bboxWrapper2}
-					onMouseDown={() => setCurrentBBox(bboxWrapper2)}
+					onTouchStart={() => setCurrentBBox(bboxWrapper2)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
+
 				>
 					<div
 						className='boundingBox'
@@ -374,7 +378,9 @@ const Capture = () => {
 					className='boundingBoxWrapper3'
 					id='bbox3'
 					ref={bboxWrapper3}
-					onMouseDown={() => setCurrentBBox(bboxWrapper3)}
+					onTouchStart={() => setCurrentBBox(bboxWrapper3)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
+
 				>
 					<div
 						className='boundingBox'
@@ -390,7 +396,9 @@ const Capture = () => {
 					className='boundingBoxWrapper4'
 					id='bbox4'
 					ref={bboxWrapper4}
-					onMouseDown={() => setCurrentBBox(bboxWrapper4)}
+					onTouchStart={() => setCurrentBBox(bboxWrapper4)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
+
 				>
 					<div
 						className='boundingBox'
@@ -406,7 +414,9 @@ const Capture = () => {
 					className='boundingBoxWrapper5'
 					id='bbox5'
 					ref={bboxWrapper5}
-					onMouseDown={() => setCurrentBBox(bboxWrapper5)}
+					onTouchStart={() => setCurrentBBox(bboxWrapper5)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper1)}
+
 				>
 					<div
 						className='boundingBox'
