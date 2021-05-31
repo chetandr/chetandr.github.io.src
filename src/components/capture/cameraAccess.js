@@ -343,7 +343,7 @@ var CameraAccess;
             case 0:
                 if (isSafariBrowser) {
                     return {
-                        width: { min: 1920, ideal: 3840, max: 3840 },
+                        width: { min: 1920, ideal: 3840, max: 4096 },
                         height: { min: 1080, ideal: 2160, max: 2160 }
                     };
                 }
@@ -435,6 +435,8 @@ var CameraAccess;
                 return {};
         }
     }
+    CameraAccess.getUserMediaVideoParams = getUserMediaVideoParams;
+
     /**
      * @hidden
      *

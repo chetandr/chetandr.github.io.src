@@ -132,7 +132,9 @@ const Capture = () => {
 	};
 
 	const getVideo = useCallback(
+		
 		async (device, devices) => {
+			// console.log(device.getCapabilities())
 			let mediaStream;
 			try {
 				mediaStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
@@ -169,13 +171,16 @@ const Capture = () => {
 			}
 			// const newCamera = await CamerHelper.CameraAccess.adjustCamerasFromMainCameraStream(mediaStream, devices)
 			// console.log(newCamera);
-			// console.log(mediaStream);
+			console.log(mediaStream);
 			video.current.srcObject = mediaStream;
 		},
 		[video, canvas, downloadAnchor, photo],
 	);
 
 	const getCamera = useCallback(async () => {
+		const enumDevices = await navigator.mediaDevices.getSupportedConstraints();
+		// const videoDevices = enumDevices.filter((device) => (device.kind === 'videoinput'))
+		console.log(enumDevices);
 		const devices = await CamerHelper.CameraAccess.getCameras();
 		const debugData = {};
 		devices.map((d, i) => debugData[`Devices Info ${i}`] = JSON.stringify(d))
