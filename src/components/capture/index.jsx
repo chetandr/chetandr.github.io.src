@@ -132,37 +132,61 @@ const Capture = () => {
 	};
 
 	const getVideo = useCallback(
-		
 		async (device, devices) => {
 			// console.log(device.getCapabilities())
 			let mediaStream;
+			let res = 0;
 			try {
-				mediaStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
-			} catch (e) {
+				res = -1;
+				mediaStream = await CamerHelper.CameraAccess.accessCameraStream(-1, device);
+			} catch {
 				try {
-					mediaStream = await CamerHelper.CameraAccess.accessCameraStream(1, device);
+					res =0
+					mediaStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
 				} catch (e) {
 					try {
-						mediaStream = await CamerHelper.CameraAccess.accessCameraStream(2, device);
+						res = 1;
+						mediaStream = await CamerHelper.CameraAccess.accessCameraStream(1, device);
 					} catch (e) {
 						try {
-							mediaStream = await CamerHelper.CameraAccess.accessCameraStream(3, device);
-							video.current.srcObject = mediaStream;
+							res = 2;
+							mediaStream = await CamerHelper.CameraAccess.accessCameraStream(2, device);
 						} catch (e) {
 							try {
-								mediaStream = await CamerHelper.CameraAccess.accessCameraStream(4, device);
+								res = 3;
+								mediaStream = await CamerHelper.CameraAccess.accessCameraStream(3, device);
 								video.current.srcObject = mediaStream;
 							} catch (e) {
 								try {
-									mediaStream = await CamerHelper.CameraAccess.accessCameraStream(5, device);
-									
+									res = 4;
+									mediaStream = await CamerHelper.CameraAccess.accessCameraStream(4, device);
+									video.current.srcObject = mediaStream;
 								} catch (e) {
 									try {
-										mediaStream = await CamerHelper.CameraAccess.accessCameraStream(
-											6,
-											device,
-										);
-									} catch (e) {}
+										res = 5;
+										mediaStream = await CamerHelper.CameraAccess.accessCameraStream(5, device);
+									} catch (e) {
+										try {
+											res = 6;
+											mediaStream = await CamerHelper.CameraAccess.accessCameraStream(6, device);
+										} catch (e) {
+											try {
+												res = 7;
+												mediaStream = await CamerHelper.CameraAccess.accessCameraStream(
+													7,
+													device,
+												);
+											} catch (e) {
+												try {
+													res = 8;
+													mediaStream = await CamerHelper.CameraAccess.accessCameraStream(
+														8,
+														device,
+													);
+												} catch (e) {}
+											}
+										}
+									}
 								}
 							}
 						}
@@ -171,7 +195,17 @@ const Capture = () => {
 			}
 			// const newCamera = await CamerHelper.CameraAccess.adjustCamerasFromMainCameraStream(mediaStream, devices)
 			// console.log(newCamera);
-			console.log(mediaStream);
+			const isSafari = navigator.userAgent.indexOf('Safari') != -1;
+			const reso = CamerHelper.CameraAccess.getUserMediaVideoParams(res, isSafari);
+			const newDebugData = { ...debugData };
+			newDebugData['resolution'] = res > 0 ? JSON.stringify(reso) : "generic";
+			setDebugData(newDebugData);
+			console.log(mediaStream.getVideoTracks()[0].getSettings());
+			const streamSettings = mediaStream.getVideoTracks()[0].getSettings();
+			const width = streamSettings.width;
+			const height = streamSettings.height;
+			canvas.current.width = `${width}px`;
+			canvas.current.height = `${height}px`;
 			video.current.srcObject = mediaStream;
 		},
 		[video, canvas, downloadAnchor, photo],
@@ -183,9 +217,9 @@ const Capture = () => {
 		console.log(enumDevices);
 		const devices = await CamerHelper.CameraAccess.getCameras();
 		const debugData = {};
-		devices.map((d, i) => debugData[`Devices Info ${i}`] = JSON.stringify(d))
-		
-		let backDevice = devices.filter((device) => (device.cameraType === 'back'));
+		devices.map((d, i) => (debugData[`Devices Info ${i}`] = JSON.stringify(d)));
+
+		let backDevice = devices.filter((device) => device.cameraType === 'back');
 
 		debugData['Has Back Camera'] = backDevice.length ? 'true' : 'false';
 		debugData['Back Camera'] = JSON.stringify(backDevice[0]);
@@ -211,8 +245,8 @@ const Capture = () => {
 	};
 	const captureImage = () => {
 		const context = canvas.current.getContext('2d');
-		canvas.current.width = window.innerWidth;
-		canvas.current.height = window.innerHeight;
+		// canvas.current.width = window.innerWidth;
+		// canvas.current.height = window.innerHeight;
 		context.drawImage(video.current, 0, 0, window.innerWidth, window.innerHeight);
 		context.font = '20px Roboto';
 		let cnt = 0;
