@@ -319,7 +319,7 @@ var CameraAccess;
      * @returns A promise resolving when the camera is accessed.
      */
     function getUserMediaDelayed(getUserMediaParams) {
-        console.debug("Camera access:", getUserMediaParams.video);
+        console.log("Camera access:", getUserMediaParams.video);
         return new Promise(function (resolve, reject) {
             window.setTimeout(function () {
                 navigator.mediaDevices
@@ -343,6 +343,19 @@ var CameraAccess;
             case 0:
                 if (isSafariBrowser) {
                     return {
+                        width: { min: 1920, ideal: 3840, max: 3840 },
+                        height: { min: 1080, ideal: 2160, max: 2160 }
+                    };
+                }
+                else {
+                    return {
+                        width: { min: 1920, ideal: 3840, max: 3840 },
+                        height: { min: 1440, ideal: 2180, max: 2180 }
+                    };
+                }
+            case 1:
+                if (isSafariBrowser) {
+                    return {
                         width: { min: 1400, ideal: 1920, max: 1920 },
                         height: { min: 900, ideal: 1080, max: 1440 }
                     };
@@ -353,7 +366,7 @@ var CameraAccess;
                         height: { min: 900, ideal: 1440, max: 1440 }
                     };
                 }
-            case 1:
+            case 2:
                 if (isSafariBrowser) {
                     return {
                         width: { min: 1200, ideal: 1600, max: 1920 },
@@ -366,7 +379,7 @@ var CameraAccess;
                         height: { min: 900, ideal: 1200, max: 1200 }
                     };
                 }
-            case 2:
+            case 3:
                 if (isSafariBrowser) {
                     return {
                         width: { min: 1080, ideal: 1600, max: 1920 },
@@ -379,7 +392,7 @@ var CameraAccess;
                         height: { min: 900, ideal: 1080, max: 1080 }
                     };
                 }
-            case 3:
+            case 4:
                 if (isSafariBrowser) {
                     return {
                         width: { min: 960, ideal: 1280, max: 1440 },
@@ -392,7 +405,7 @@ var CameraAccess;
                         height: { min: 480, ideal: 960, max: 960 }
                     };
                 }
-            case 4:
+            case 5:
                 if (isSafariBrowser) {
                     return {
                         width: { min: 720, ideal: 1024, max: 1440 },
@@ -405,7 +418,7 @@ var CameraAccess;
                         height: { min: 480, ideal: 720, max: 768 }
                     };
                 }
-            case 5:
+            case 6:
                 if (isSafariBrowser) {
                     return {
                         width: { min: 640, ideal: 800, max: 1440 },
@@ -434,6 +447,7 @@ var CameraAccess;
      */
     function accessCameraStream(resolutionFallbackLevel, camera) {
         var browserName = browserHelper_1.BrowserHelper.userAgentInfo.getBrowser().name;
+       
         var getUserMediaParams = {
             audio: false,
             video: getUserMediaVideoParams(resolutionFallbackLevel, browserName != null && browserName.includes("Safari"))
@@ -448,6 +462,7 @@ var CameraAccess;
                 exact: camera.deviceId
             };
         }
+        console.log(getUserMediaParams);
         return getUserMediaDelayed(getUserMediaParams);
     }
     CameraAccess.accessCameraStream = accessCameraStream;

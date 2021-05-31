@@ -12,7 +12,7 @@ const ItemTypes = {
 };
 
 const Capture = () => {
-	const debug = false;
+	const debug = true;
 	const allowedBBoxes = 2;
 	const video = useRef();
 	const canvas = useRef();
@@ -132,37 +132,34 @@ const Capture = () => {
 	};
 
 	const getVideo = useCallback(
-		async (device) => {
+		async (device, devices) => {
+			let mediaStream;
 			try {
-				const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
-				video.current.srcObject = mediaStream;
+				mediaStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
 			} catch (e) {
 				try {
-					const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(1, device);
-					video.current.srcObject = mediaStream;
+					mediaStream = await CamerHelper.CameraAccess.accessCameraStream(1, device);
 				} catch (e) {
 					try {
-						const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(2, device);
-						video.current.srcObject = mediaStream;
+						mediaStream = await CamerHelper.CameraAccess.accessCameraStream(2, device);
 					} catch (e) {
 						try {
-							const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(3, device);
+							mediaStream = await CamerHelper.CameraAccess.accessCameraStream(3, device);
 							video.current.srcObject = mediaStream;
 						} catch (e) {
 							try {
-								const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(4, device);
+								mediaStream = await CamerHelper.CameraAccess.accessCameraStream(4, device);
 								video.current.srcObject = mediaStream;
 							} catch (e) {
 								try {
-									const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(5, device);
-									video.current.srcObject = mediaStream;
+									mediaStream = await CamerHelper.CameraAccess.accessCameraStream(5, device);
+									
 								} catch (e) {
 									try {
-										const mediaStream = await CamerHelper.CameraAccess.accessCameraStream(
+										mediaStream = await CamerHelper.CameraAccess.accessCameraStream(
 											6,
 											device,
 										);
-										video.current.srcObject = mediaStream;
 									} catch (e) {}
 								}
 							}
@@ -170,22 +167,30 @@ const Capture = () => {
 					}
 				}
 			}
+			// const newCamera = await CamerHelper.CameraAccess.adjustCamerasFromMainCameraStream(mediaStream, devices)
+			// console.log(newCamera);
+			// console.log(mediaStream);
+			video.current.srcObject = mediaStream;
 		},
 		[video, canvas, downloadAnchor, photo],
 	);
 
 	const getCamera = useCallback(async () => {
 		const devices = await CamerHelper.CameraAccess.getCameras();
-		// const debugData = { 'Devices Info': device };
-		let backDevice = devices.filter((device) => (device.cameraType = 'back'));
+		const debugData = {};
+		devices.map((d, i) => debugData[`Devices Info ${i}`] = JSON.stringify(d))
+		
+		let backDevice = devices.filter((device) => (device.cameraType === 'back'));
 
 		debugData['Has Back Camera'] = backDevice.length ? 'true' : 'false';
+		debugData['Back Camera'] = JSON.stringify(backDevice[0]);
+		debugData['Back Camera length'] = JSON.stringify(backDevice.length);
 		setDebugData(debugData);
 		// debug.append(div);
 		if (backDevice.length) {
-			getVideo(backDevice[0]);
+			getVideo(backDevice[0], devices);
 		} else {
-			getVideo(devices[0]);
+			getVideo(devices[0], devices);
 		}
 	}, [getVideo]);
 
