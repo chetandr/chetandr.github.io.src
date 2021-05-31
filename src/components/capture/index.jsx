@@ -6,6 +6,7 @@ import { useDrag, useDragDropManager, useDrop } from 'react-dnd';
 import IconButton from '@material-ui/core/IconButton';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
 import SettingsOverscanIcon from '@material-ui/icons/SettingsOverscan';
+import { usePreview } from 'react-dnd-preview';
 
 const ItemTypes = {
 	BOUNDARY: 'boundry',
@@ -45,40 +46,51 @@ const Capture = () => {
 	const [{ isDragging0 }, bbox0] = useDrag(() => ({
 		type: ItemTypes.BOUNDARY,
 		collect: (monitor) => ({
-			isDragging: !!monitor.isDragging(),
+			isDragging0: !!monitor.isDragging(),
 		}),
 	}));
 	const [{ isDragging1 }, bbox1] = useDrag(() => ({
 		type: ItemTypes.BOUNDARY,
 		collect: (monitor) => ({
-			isDragging: !!monitor.isDragging(),
+			isDragging1: !!monitor.isDragging(),
 		}),
 	}));
 	const [{ isDragging2 }, bbox2] = useDrag(() => ({
 		type: ItemTypes.BOUNDARY,
 		collect: (monitor) => ({
-			isDragging: !!monitor.isDragging(),
+			isDragging2: !!monitor.isDragging(),
 		}),
 	}));
 	const [{ isDragging3 }, bbox3] = useDrag(() => ({
 		type: ItemTypes.BOUNDARY,
 		collect: (monitor) => ({
-			isDragging: !!monitor.isDragging(),
+			isDragging3: !!monitor.isDragging(),
 		}),
 	}));
 	const [{ isDragging4 }, bbox4] = useDrag(() => ({
 		type: ItemTypes.BOUNDARY,
 		collect: (monitor) => ({
-			isDragging: !!monitor.isDragging(),
+			isDragging4: !!monitor.isDragging(),
 		}),
 	}));
 	const [{ isDragging5 }, bbox5] = useDrag(() => ({
 		type: ItemTypes.BOUNDARY,
 		collect: (monitor) => ({
-			isDragging: !!monitor.isDragging(),
+			isDragging5: !!monitor.isDragging(),
 		}),
 	}));
-
+	const { display, itemType, item, style } = usePreview();
+	const MyPreview = () => {
+		const { display, itemType, item, style } = usePreview();
+		if (!display) {
+			return null;
+		}
+		return (
+			<div className='boundingBoxWrapper1' style={style}>
+				<div className='boundingBox'></div>
+			</div>
+		);
+	};
 	React.useEffect(() => {
 		monitor.subscribeToOffsetChange(() => {
 			const offset = monitor.getClientOffset();
@@ -276,7 +288,6 @@ const Capture = () => {
 		}
 		return components;
 	};
-
 	return (
 		<>
 			{debug && <div id='debug'>Debug {getDebugData()}</div>}
@@ -327,7 +338,7 @@ const Capture = () => {
 						className='boundingBox'
 						ref={bbox0}
 						style={{
-							opacity: isDragging0 ? 1 : 1,
+							opacity: isDragging0 ? 0 : 1,
 							cursor: 'move',
 							display: displayBox.disp0 ? 'inline-block' : 'none',
 						}}
@@ -344,7 +355,7 @@ const Capture = () => {
 						className='boundingBox'
 						ref={bbox1}
 						style={{
-							opacity: isDragging1 ? 1 : 1,
+							opacity: isDragging1 ? 0: 1,
 							cursor: 'move',
 							display: displayBox.disp1 ? 'inline-block' : 'none',
 						}}
@@ -361,7 +372,7 @@ const Capture = () => {
 						className='boundingBox'
 						ref={bbox2}
 						style={{
-							opacity: isDragging2 ? 1 : 1,
+							opacity: isDragging2 ? 0 : 1,
 							cursor: 'move',
 							display: displayBox.disp2 ? 'inline-block' : 'none',
 						}}
@@ -378,7 +389,7 @@ const Capture = () => {
 						className='boundingBox'
 						ref={bbox3}
 						style={{
-							opacity: isDragging3 ? 1 : 1,
+							opacity: isDragging3 ? 0 : 1,
 							cursor: 'move',
 							display: displayBox.disp3 ? 'inline-block' : 'none',
 						}}
@@ -395,7 +406,7 @@ const Capture = () => {
 						className='boundingBox'
 						ref={bbox4}
 						style={{
-							opacity: isDragging4 ? 1 : 1,
+							opacity: isDragging4 ? 0 : 1,
 							cursor: 'move',
 							display: displayBox.disp4 ? 'inline-block' : 'none',
 						}}
@@ -412,13 +423,14 @@ const Capture = () => {
 						className='boundingBox'
 						ref={bbox5}
 						style={{
-							opacity: isDragging5 ? 1 : 1,
+							opacity: isDragging5 ? 0 : 1,
 							cursor: 'move',
 							display: displayBox.disp5 ? 'inline-block' : 'none',
 						}}
 					></div>
 				</div>
 			</div>
+			<MyPreview />
 		</>
 	);
 };
