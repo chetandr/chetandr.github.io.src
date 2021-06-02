@@ -304,17 +304,18 @@ const Capture = () => {
 		setDisplayBox(newDisplayBox);
 	};
 	const captureImage = () => {
+		console.log(streamSettings);
 		const context = canvas.current.getContext('2d');
-		const dpr = window.devicePixelRatio || 1;
-		const width = window.outerWidth ;
-		const height = window.outerHeight;
+		const dpr = streamSettings.aspectRatio || 1; //window.devicePixelRatio || 1;
+		const width = streamSettings.width ;
+		const height = streamSettings.height;
 		let rect = canvas.current.getBoundingClientRect();
 		console.log("RECT", rect);
 		canvas.current.width = width * dpr;
 		canvas.current.height = height  * dpr;
 		canvas.current.style.width = width + 'px';
 		canvas.current.style.height = height + 'px';
-		console.log(video.current.style);
+		context.scale(dpr, dpr);
 		context.drawImage(video.current, 0, 0, width, height);
 		// context.transform(streamSettings.width, 0, 0, streamSettings.height, 0, 0);
 		context.font = '20px Roboto';
