@@ -319,7 +319,6 @@ var CameraAccess;
      * @returns A promise resolving when the camera is accessed.
      */
     function getUserMediaDelayed(getUserMediaParams) {
-        console.log("Camera access:", getUserMediaParams.video);
         return new Promise(function (resolve, reject) {
             window.setTimeout(function () {
                 navigator.mediaDevices
@@ -341,44 +340,8 @@ var CameraAccess;
     function getUserMediaVideoParams(resolutionFallbackLevel, isSafariBrowser) {
         switch (resolutionFallbackLevel) {
             case 0:
-                if (isSafariBrowser) {
-                    return {
-                        width: { min: 1920, ideal: 7680, max: 7680 },
-                        height: { min: 1440, ideal: 4320, max: 5776 }
-                    };
-                }
-                else {
-                    return {
-                        width: { min: 1920, ideal: 7680, max: 4096 },
-                        height: { min: 1440, ideal: 5776, max: 2180 }
-                    };
-                }
             case 1:
-                if (isSafariBrowser) {
-                    return {
-                        width: { min: 3840, ideal: 4096, max: 4096 },
-                        height: { min: 2160, ideal: 2160, max: 2160 }
-                    };
-                }
-                else {
-                    return {
-                        width: { min: 1920, ideal: 4096, max: 4096 },
-                        height: { min: 1440, ideal: 2180, max: 2180 }
-                    };
-                }
             case 2:
-                if (isSafariBrowser) {
-                    return {
-                        width: { min: 1920, ideal: 3840, max: 4096 },
-                        height: { min: 1080, ideal: 2160, max: 2160 }
-                    };
-                }
-                else {
-                    return {
-                        width: { min: 1920, ideal: 3840, max: 3840 },
-                        height: { min: 1440, ideal: 2180, max: 2180 }
-                    };
-                }
             case 3:
                 if (isSafariBrowser) {
                     return {
@@ -476,11 +439,8 @@ var CameraAccess;
     function accessCameraStream(resolutionFallbackLevel, camera) {
         var browserName = browserHelper_1.BrowserHelper.userAgentInfo.getBrowser().name;
         var getUserMediaParams;
-        if (resolutionFallbackLevel < 0 ) {
-            getUserMediaParams = {
-                audio: false,
-                video: { facingMode: 'environment' }
-              };
+        if (navigator.appVersion.includes("Mac")) {
+            getUserMediaParams = {};
         } else {
             getUserMediaParams = {
             audio: false,
@@ -492,12 +452,18 @@ var CameraAccess;
             };
         }
         else {
-            getUserMediaParams.video.deviceId = {
-                exact: camera.deviceId
-            };
+            if(getUserMediaParams.video) {
+                getUserMediaParams.video.deviceId = {
+                    exact: camera.deviceId
+                };
+            } else {
+                getUserMediaParams.video = {deviceId : {
+                    exact: camera.deviceId
+                }};
+            }
+            
         }
-        console.log(getUserMediaParams);
-        return getUserMediaDelayed(getUserMediaParams);
+        return {mediaParams: getUserMediaParams, mediaStreamPromise : getUserMediaDelayed(getUserMediaParams)};
     }
     CameraAccess.accessCameraStream = accessCameraStream;
     /**

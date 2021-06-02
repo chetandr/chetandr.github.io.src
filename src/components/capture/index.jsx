@@ -13,9 +13,11 @@ const ItemTypes = {
 };
 
 const Capture = () => {
-	const debug = true;
+	const debug = false;
 	const allowedBBoxes = 2;
 	const video = useRef();
+	const container = useRef();
+	const fileInput = useRef();
 	const canvas = useRef();
 	const downloadAnchor = useRef();
 	const photo = useRef();
@@ -42,7 +44,9 @@ const Capture = () => {
 	const monitor = dragDropManager.getMonitor();
 	const [bboxCount, setBBoxCount] = useState(0);
 	const [currentBBox, setCurrentBBox] = useState();
-
+	const [imageHeight, setImageHieght] = useState(0);
+	const [imageWidth, setImageWidth] = useState(0);
+	const [streamSettings, setStreamSettings] = useState(0);
 	const [{ isDragging0 }, bbox0] = useDrag(() => ({
 		type: ItemTypes.BOUNDARY,
 		collect: (monitor) => ({
@@ -145,57 +149,65 @@ const Capture = () => {
 
 	const getVideo = useCallback(
 		async (device, devices) => {
-			// console.log(device.getCapabilities())
-			let mediaStream;
+			let cameraStream;
 			let res = 0;
+			let mediaStream;
+			let newDebugData = {};
+
+			// try {
+			// 	res = -1;
+			// 	mediaStream = await CamerHelper.CameraAccess.accessCameraStream(-1, device);
+			// } catch {
 			try {
-				res = -1;
-				mediaStream = await CamerHelper.CameraAccess.accessCameraStream(-1, device);
-			} catch {
+				res = 0;
+				cameraStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
+				mediaStream = await cameraStream.mediaStreamPromise;
+			} catch (e) {
 				try {
-					res =0
-					mediaStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
+					res = 1;
+					cameraStream = await CamerHelper.CameraAccess.accessCameraStream(1, device);
+					mediaStream = await cameraStream.mediaStreamPromise;
 				} catch (e) {
 					try {
-						res = 1;
-						mediaStream = await CamerHelper.CameraAccess.accessCameraStream(1, device);
+						res = 2;
+						cameraStream = await CamerHelper.CameraAccess.accessCameraStream(2, device);
+						mediaStream = await cameraStream.mediaStreamPromise;
 					} catch (e) {
 						try {
-							res = 2;
-							mediaStream = await CamerHelper.CameraAccess.accessCameraStream(2, device);
+							res = 3;
+							cameraStream = await CamerHelper.CameraAccess.accessCameraStream(3, device);
+							mediaStream = await cameraStream.mediaStreamPromise;
 						} catch (e) {
 							try {
-								res = 3;
-								mediaStream = await CamerHelper.CameraAccess.accessCameraStream(3, device);
-								video.current.srcObject = mediaStream;
+								res = 4;
+								cameraStream = await CamerHelper.CameraAccess.accessCameraStream(4, device);
+								mediaStream = await cameraStream.mediaStreamPromise;
 							} catch (e) {
 								try {
-									res = 4;
-									mediaStream = await CamerHelper.CameraAccess.accessCameraStream(4, device);
-									video.current.srcObject = mediaStream;
+									res = 5;
+									cameraStream = await CamerHelper.CameraAccess.accessCameraStream(5, device);
+									mediaStream = await cameraStream.mediaStreamPromise;
 								} catch (e) {
 									try {
-										res = 5;
-										mediaStream = await CamerHelper.CameraAccess.accessCameraStream(5, device);
+										res = 6;
+										cameraStream = await CamerHelper.CameraAccess.accessCameraStream(6, device);
+										mediaStream = await cameraStream.mediaStreamPromise;
 									} catch (e) {
 										try {
-											res = 6;
-											mediaStream = await CamerHelper.CameraAccess.accessCameraStream(6, device);
+											res = 7;
+											cameraStream = await CamerHelper.CameraAccess.accessCameraStream(7, device);
+											mediaStream = await cameraStream.mediaStreamPromise;
 										} catch (e) {
 											try {
-												res = 7;
-												mediaStream = await CamerHelper.CameraAccess.accessCameraStream(
-													7,
+												res = 8;
+												cameraStream = await CamerHelper.CameraAccess.accessCameraStream(
+													8,
 													device,
 												);
+												mediaStream = await cameraStream.mediaStreamPromise;
 											} catch (e) {
-												try {
-													res = 8;
-													mediaStream = await CamerHelper.CameraAccess.accessCameraStream(
-														8,
-														device,
-													);
-												} catch (e) {}
+												console.log(e);
+												newDebugData.error = JSON.stringify(e);
 											}
 										}
 									}
@@ -205,28 +217,60 @@ const Capture = () => {
 					}
 				}
 			}
+			// }
 			// const newCamera = await CamerHelper.CameraAccess.adjustCamerasFromMainCameraStream(mediaStream, devices)
 			// console.log(newCamera);
 			const isSafari = navigator.userAgent.indexOf('Safari') != -1;
 			const reso = CamerHelper.CameraAccess.getUserMediaVideoParams(res, isSafari);
-			const newDebugData = { ...debugData };
-			newDebugData['resolution'] = res > 0 ? JSON.stringify(reso) : "generic";
-			setDebugData(newDebugData);
-			console.log(mediaStream.getVideoTracks()[0].getSettings());
+
+			newDebugData.mediaParams = JSON.stringify(cameraStream.mediaParams);
+			// newDebugData.mediaStream = JSON.stringify(mediaStream);
+
 			const streamSettings = mediaStream.getVideoTracks()[0].getSettings();
 			const width = streamSettings.width;
 			const height = streamSettings.height;
-			canvas.current.width = `${width}px`;
-			canvas.current.height = `${height}px`;
-			video.current.srcObject = mediaStream;
+			let captureSupport = false;
+			if ('capture' in fileInput.current) {
+				captureSupport = true;
+			}
+			newDebugData.captureSupport = `${captureSupport}`;
+			newDebugData.stream = JSON.stringify(streamSettings);
+
+			// video.current.width = streamSettings.width;
+			// video.current.height = streamSettings.height;
+			setStreamSettings(streamSettings);
+			setImageHieght(height);
+			setImageWidth(width);
+			// canvas.current.width = `${width}px`;
+			// canvas.current.height = `${height}px`;
+			try {
+				if ('srcObject' in video.current) {
+					video.current.srcObject = mediaStream;
+				} else {
+					// Avoid using this in new browsers
+					video.src = window.URL.createObjectURL(mediaStream);
+				}
+			} catch (e) {
+				console.log(e);
+				newDebugData.videoError = `${e}`;
+			}
+			setDebugData(newDebugData);
 		},
-		[video, canvas, downloadAnchor, photo],
+		[video, canvas, downloadAnchor, photo, setImageHieght, setImageWidth],
 	);
 
 	const getCamera = useCallback(async () => {
 		const enumDevices = await navigator.mediaDevices.getSupportedConstraints();
+
+		if (container.current.requestFullscreen) {
+			console.log('FULLSCREEN');
+			try {
+				const fullscreen = await container.current.requestFullscreen();
+			} catch (e) {
+				console.log(e);
+			}
+		}
 		// const videoDevices = enumDevices.filter((device) => (device.kind === 'videoinput'))
-		console.log(enumDevices);
 		const devices = await CamerHelper.CameraAccess.getCameras();
 		const debugData = {};
 		devices.map((d, i) => (debugData[`Devices Info ${i}`] = JSON.stringify(d)));
@@ -236,6 +280,11 @@ const Capture = () => {
 		debugData['Has Back Camera'] = backDevice.length ? 'true' : 'false';
 		debugData['Back Camera'] = JSON.stringify(backDevice[0]);
 		debugData['Back Camera length'] = JSON.stringify(backDevice.length);
+		const dpr = window.devicePixelRatio || 1;
+		const width = window.outerWidth * dpr;
+		const height = window.outerHeight * dpr;
+		// video.current.width = width;
+		// video.current.height = height;
 		setDebugData(debugData);
 		// debug.append(div);
 		if (backDevice.length) {
@@ -247,8 +296,7 @@ const Capture = () => {
 
 	useEffect(() => {
 		getCamera();
-		// console.log(.then(cameras => console.log(cameras)));
-	}, [debug, video, canvas, downloadAnchor, photo, getCamera, getVideo]);
+	}, [debug, video, canvas, downloadAnchor, getCamera, getVideo, container]);
 	const addBBox = () => {
 		const newDisplayBox = { ...displayBox, [`disp${bboxCount}`]: true };
 		const newCount = bboxCount + 1;
@@ -257,9 +305,18 @@ const Capture = () => {
 	};
 	const captureImage = () => {
 		const context = canvas.current.getContext('2d');
-		// canvas.current.width = window.innerWidth;
-		// canvas.current.height = window.innerHeight;
-		context.drawImage(video.current, 0, 0, window.innerWidth, window.innerHeight);
+		const dpr = window.devicePixelRatio || 1;
+		const width = window.outerWidth ;
+		const height = window.outerHeight;
+		let rect = canvas.current.getBoundingClientRect();
+		console.log("RECT", rect);
+		canvas.current.width = width * dpr;
+		canvas.current.height = height  * dpr;
+		canvas.current.style.width = width + 'px';
+		canvas.current.style.height = height + 'px';
+		console.log(video.current.style);
+		context.drawImage(video.current, 0, 0, width, height);
+		// context.transform(streamSettings.width, 0, 0, streamSettings.height, 0, 0);
 		context.font = '20px Roboto';
 		let cnt = 0;
 		for (let key in bboxProperties) {
@@ -268,7 +325,7 @@ const Capture = () => {
 			cnt++;
 		}
 		const url = canvas.current.toDataURL('image/png');
-		photo.current.setAttribute('src', url);
+		// photo.current.setAttribute('src', url);
 		downloadAnchor.current.href = url;
 		downloadAnchor.current.download = 'MyPhoto.png';
 		downloadAnchor.current.click();
@@ -289,10 +346,11 @@ const Capture = () => {
 		return components;
 	};
 	return (
-		<>
+		<div className='container' ref={container}>
 			{debug && <div id='debug'>Debug {getDebugData()}</div>}
-			<div className='container' ref={drop} onMouseMove={_onMouseMove}>
-				<video ref={video} id='video' autoPlay muted></video>
+			<div className='container' ref={drop}>
+				<video ref={video} id='video' autoPlay muted playsInline></video>
+				<input ref={fileInput} id='myFileInput' type='file' accept='image/*' capture='camera'></input>
 				<div id='changeVideo'>
 					<IconButton
 						color='primary'
@@ -355,7 +413,7 @@ const Capture = () => {
 						className='boundingBox'
 						ref={bbox1}
 						style={{
-							opacity: isDragging1 ? 0: 1,
+							opacity: isDragging1 ? 0 : 1,
 							cursor: 'move',
 							display: displayBox.disp1 ? 'inline-block' : 'none',
 						}}
@@ -431,7 +489,7 @@ const Capture = () => {
 				</div>
 			</div>
 			<MyPreview />
-		</>
+		</div>
 	);
 };
 

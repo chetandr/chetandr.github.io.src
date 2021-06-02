@@ -1,10 +1,7 @@
 import './App.css';
 
-import { DndProvider, useDrag } from 'react-dnd';
-
 import Capture from './components/capture';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DndProvider } from 'react-dnd';
 import { TouchBackend } from 'react-dnd-touch-backend';
 
 function App() {

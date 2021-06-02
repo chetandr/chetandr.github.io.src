@@ -1,4 +1,3 @@
-"use strict";
 exports.__esModule = true;
 exports.BrowserCompatibility = void 0;
 var BrowserCompatibility;
