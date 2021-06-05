@@ -1,7 +1,7 @@
 import './App.css';
 
-import Capture from './components/capture';
 import { DndProvider } from 'react-dnd';
+import MediaStream from './components/MediaStream';
 import { TouchBackend } from 'react-dnd-touch-backend';
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
 		<DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
 			<div className='App'>
 				<header className='App-header'>
-					<Capture />
+					<MediaStream />
 				</header>
 			</div>
 		</DndProvider>

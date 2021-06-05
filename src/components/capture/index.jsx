@@ -6,6 +6,7 @@ import { useDrag, useDragDropManager, useDrop } from 'react-dnd';
 import IconButton from '@material-ui/core/IconButton';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
 import SettingsOverscanIcon from '@material-ui/icons/SettingsOverscan';
+import { getMedia } from './utils';
 import { usePreview } from 'react-dnd-preview';
 
 const ItemTypes = {
@@ -13,11 +14,10 @@ const ItemTypes = {
 };
 
 const Capture = () => {
-	const debug = false;
+	const debug = true;
 	const allowedBBoxes = 2;
 	const video = useRef();
 	const container = useRef();
-	const fileInput = useRef();
 	const canvas = useRef();
 	const downloadAnchor = useRef();
 	const photo = useRef();
@@ -44,9 +44,7 @@ const Capture = () => {
 	const monitor = dragDropManager.getMonitor();
 	const [bboxCount, setBBoxCount] = useState(0);
 	const [currentBBox, setCurrentBBox] = useState();
-	const [imageHeight, setImageHieght] = useState(0);
-	const [imageWidth, setImageWidth] = useState(0);
-	const [streamSettings, setStreamSettings] = useState(0);
+	const [mediaSettings, setMediaSettings] = useState({});
 	const [{ isDragging0 }, bbox0] = useDrag(() => ({
 		type: ItemTypes.BOUNDARY,
 		collect: (monitor) => ({
@@ -83,9 +81,9 @@ const Capture = () => {
 			isDragging5: !!monitor.isDragging(),
 		}),
 	}));
-	const { display, itemType, item, style } = usePreview();
+
 	const MyPreview = () => {
-		const { display, itemType, item, style } = usePreview();
+		const { display, style } = usePreview();
 		if (!display) {
 			return null;
 		}
@@ -111,10 +109,6 @@ const Capture = () => {
 			// do stuff like setState, though consider directly updating style through refs for performance
 		});
 	}, [monitor]);
-
-	const _onMouseMove = (e) => {
-		setCurrentPosition({ x: e.screenX, y: e.screenY });
-	};
 
 	const [{ isOver }, drop] = useDrop(
 		() => ({
@@ -143,160 +137,31 @@ const Capture = () => {
 			],
 		};
 		setBboxProperties(newBboxProperties);
-		// drag.current.left = `${currentPosition.x}px`;
-		// drag.current.top = `${currentPosition.y}px`;
 	};
 
-	const getVideo = useCallback(
-		async (device, devices) => {
-			let cameraStream;
-			let res = 0;
-			let mediaStream;
-			let newDebugData = {};
-
-			// try {
-			// 	res = -1;
-			// 	mediaStream = await CamerHelper.CameraAccess.accessCameraStream(-1, device);
-			// } catch {
-			try {
-				res = 0;
-				cameraStream = await CamerHelper.CameraAccess.accessCameraStream(0, device);
-				mediaStream = await cameraStream.mediaStreamPromise;
-			} catch (e) {
-				try {
-					res = 1;
-					cameraStream = await CamerHelper.CameraAccess.accessCameraStream(1, device);
-					mediaStream = await cameraStream.mediaStreamPromise;
-				} catch (e) {
-					try {
-						res = 2;
-						cameraStream = await CamerHelper.CameraAccess.accessCameraStream(2, device);
-						mediaStream = await cameraStream.mediaStreamPromise;
-					} catch (e) {
-						try {
-							res = 3;
-							cameraStream = await CamerHelper.CameraAccess.accessCameraStream(3, device);
-							mediaStream = await cameraStream.mediaStreamPromise;
-						} catch (e) {
-							try {
-								res = 4;
-								cameraStream = await CamerHelper.CameraAccess.accessCameraStream(4, device);
-								mediaStream = await cameraStream.mediaStreamPromise;
-							} catch (e) {
-								try {
-									res = 5;
-									cameraStream = await CamerHelper.CameraAccess.accessCameraStream(5, device);
-									mediaStream = await cameraStream.mediaStreamPromise;
-								} catch (e) {
-									try {
-										res = 6;
-										cameraStream = await CamerHelper.CameraAccess.accessCameraStream(6, device);
-										mediaStream = await cameraStream.mediaStreamPromise;
-									} catch (e) {
-										try {
-											res = 7;
-											cameraStream = await CamerHelper.CameraAccess.accessCameraStream(7, device);
-											mediaStream = await cameraStream.mediaStreamPromise;
-										} catch (e) {
-											try {
-												res = 8;
-												cameraStream = await CamerHelper.CameraAccess.accessCameraStream(
-													8,
-													device,
-												);
-												mediaStream = await cameraStream.mediaStreamPromise;
-											} catch (e) {
-												console.log(e);
-												newDebugData.error = JSON.stringify(e);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
+	useEffect(async () => {
+		const media = await getMedia();
+		setMediaSettings(media.settings);
+		if (video.current) {
+			if ('srcObject' in video.current) {
+				video.current.srcObject = media.stream;
+			} else {
+				video.src = window.URL.createObjectURL(media.stream);
 			}
-			// }
-			// const newCamera = await CamerHelper.CameraAccess.adjustCamerasFromMainCameraStream(mediaStream, devices)
-			// console.log(newCamera);
-			const isSafari = navigator.userAgent.indexOf('Safari') != -1;
-			const reso = CamerHelper.CameraAccess.getUserMediaVideoParams(res, isSafari);
-
-			newDebugData.mediaParams = JSON.stringify(cameraStream.mediaParams);
-			// newDebugData.mediaStream = JSON.stringify(mediaStream);
-
-			const streamSettings = mediaStream.getVideoTracks()[0].getSettings();
-			const width = streamSettings.width;
-			const height = streamSettings.height;
-			let captureSupport = false;
-			if ('capture' in fileInput.current) {
-				captureSupport = true;
-			}
-			newDebugData.captureSupport = `${captureSupport}`;
-			newDebugData.stream = JSON.stringify(streamSettings);
-
-			// video.current.width = streamSettings.width;
-			// video.current.height = streamSettings.height;
-			setStreamSettings(streamSettings);
-			setImageHieght(height);
-			setImageWidth(width);
-			// canvas.current.width = `${width}px`;
-			// canvas.current.height = `${height}px`;
-			try {
-				if ('srcObject' in video.current) {
-					video.current.srcObject = mediaStream;
-				} else {
-					// Avoid using this in new browsers
-					video.src = window.URL.createObjectURL(mediaStream);
-				}
-			} catch (e) {
-				console.log(e);
-				newDebugData.videoError = `${e}`;
-			}
-			setDebugData(newDebugData);
-		},
-		[video, canvas, downloadAnchor, photo, setImageHieght, setImageWidth],
-	);
-
-	const getCamera = useCallback(async () => {
-		const enumDevices = await navigator.mediaDevices.getSupportedConstraints();
-
-		if (container.current.requestFullscreen) {
-			console.log('FULLSCREEN');
-			try {
-				const fullscreen = await container.current.requestFullscreen();
-			} catch (e) {
-				console.log(e);
-			}
+			video.current.style.display = 'none'
+			video.current.width = media.settings.width;
+			video.current.height = media.settings.height;
+			canvas.current.width = media.settings.width;
+			canvas.current.height = media.settings.height;
+			// canvas.current.style.width = window.innerWidth;
+			// canvas.current.style.height = window.innerHeight;
+			const heightRatio = window.innerHeight / media.settings.height;
+			const widthRatio = window.innerWidth / media.settings.width;
+			const ctx = canvas.current.getContext('2d');
+			ctx.scale(widthRatio, heightRatio);
 		}
-		// const videoDevices = enumDevices.filter((device) => (device.kind === 'videoinput'))
-		const devices = await CamerHelper.CameraAccess.getCameras();
-		const debugData = {};
-		devices.map((d, i) => (debugData[`Devices Info ${i}`] = JSON.stringify(d)));
+	}, [debug, video, canvas, downloadAnchor, container]);
 
-		let backDevice = devices.filter((device) => device.cameraType === 'back');
-
-		debugData['Has Back Camera'] = backDevice.length ? 'true' : 'false';
-		debugData['Back Camera'] = JSON.stringify(backDevice[0]);
-		debugData['Back Camera length'] = JSON.stringify(backDevice.length);
-		const dpr = window.devicePixelRatio || 1;
-		const width = window.outerWidth * dpr;
-		const height = window.outerHeight * dpr;
-		// video.current.width = width;
-		// video.current.height = height;
-		setDebugData(debugData);
-		// debug.append(div);
-		if (backDevice.length) {
-			getVideo(backDevice[0], devices);
-		} else {
-			getVideo(devices[0], devices);
-		}
-	}, [getVideo]);
-
-	useEffect(() => {
-		getCamera();
-	}, [debug, video, canvas, downloadAnchor, getCamera, getVideo, container]);
 	const addBBox = () => {
 		const newDisplayBox = { ...displayBox, [`disp${bboxCount}`]: true };
 		const newCount = bboxCount + 1;
@@ -304,27 +169,6 @@ const Capture = () => {
 		setDisplayBox(newDisplayBox);
 	};
 	const captureImage = () => {
-		console.log(streamSettings);
-		const context = canvas.current.getContext('2d');
-		const dpr = streamSettings.aspectRatio || 1; //window.devicePixelRatio || 1;
-		const width = streamSettings.width ;
-		const height = streamSettings.height;
-		let rect = canvas.current.getBoundingClientRect();
-		console.log("RECT", rect);
-		canvas.current.width = width * dpr;
-		canvas.current.height = height  * dpr;
-		canvas.current.style.width = width + 'px';
-		canvas.current.style.height = height + 'px';
-		context.scale(dpr, dpr);
-		context.drawImage(video.current, 0, 0, width, height);
-		// context.transform(streamSettings.width, 0, 0, streamSettings.height, 0, 0);
-		context.font = '20px Roboto';
-		let cnt = 0;
-		for (let key in bboxProperties) {
-			const contentText = `${key} : ${JSON.stringify(bboxProperties[key])}`;
-			context.strokeText(contentText, 10, 20 + 20 * cnt, 1000);
-			cnt++;
-		}
 		const url = canvas.current.toDataURL('image/png');
 		// photo.current.setAttribute('src', url);
 		downloadAnchor.current.href = url;
@@ -346,12 +190,20 @@ const Capture = () => {
 		}
 		return components;
 	};
+
+	const metaDataLoadHandle = (e) => {
+		console.log('loaded', video.current);
+		const ctx = canvas.current.getContext('2d');
+		setInterval(() => {
+			ctx.drawImage(video.current, 0, 0, mediaSettings.width, mediaSettings.height);
+		}, 30);
+	};
+
 	return (
 		<div className='container' ref={container}>
 			{debug && <div id='debug'>Debug {getDebugData()}</div>}
 			<div className='container' ref={drop}>
-				<video ref={video} id='video' autoPlay muted playsInline></video>
-				<input ref={fileInput} id='myFileInput' type='file' accept='image/*' capture='camera'></input>
+				<canvas id='canvas' ref={canvas} />
 				<div id='changeVideo'>
 					<IconButton
 						color='primary'
@@ -378,9 +230,16 @@ const Capture = () => {
 					</IconButton>
 				</div>
 				<div id='handlers'>
-					<canvas id='canvas' ref={canvas}>
-						{' '}
-					</canvas>
+					<video
+						ref={video}
+						id='video'
+						autoPlay
+						muted
+						playsInline
+						onLoadedMetadata={metaDataLoadHandle}
+						style={{ display: 'none' }}
+					></video>
+
 					<a id='downloadAnchor' href='http://chetandr.github.com' ref={downloadAnchor}>
 						image
 					</a>
