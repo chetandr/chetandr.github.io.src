@@ -1,29 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import IconButton from '@material-ui/core/IconButton';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
 import SettingsOverscanIcon from '@material-ui/icons/SettingsOverscan';
 
-const getDebugData = (debugData) => {
+const DebugData = (props) => {
 	const components = [];
-	for (let key in debugData) {
-		components.push(
-			<div className='debugRow'>
-				<span className='debugLabel'>{key} : </span>
-				<span className='debugValue'>{debugData[key]}</span>
-			</div>,
-		);
+	if (props.debugData) {
+		for (let key in props.debugData) {
+			components.push(
+				<div className='debugRow'>
+					<span className='debugLabel'>{key} : </span>
+					<span className='debugValue'>{props.debugData[key]}</span>
+				</div>,
+			);
+		}
 	}
+
 	return components;
 };
 
 const MediaStream = () => {
-	const debug = true;
+	const debug = false;
 	const videoRef = React.useRef();
 	const canvasRef = React.useRef();
+	const imageCanvasRef = React.useRef();
+
 	const downloadAnchor = React.useRef();
 	const [mediaSettings, setMediaSettings] = React.useState({});
-	const [debugData, setDebugData] = useState({});
+	const [debugData, setDebugData] = React.useState({});
+
 	async function getMedia() {
 		let stream = null;
 
@@ -46,10 +52,14 @@ const MediaStream = () => {
 			const settings = videoTrack.getSettings();
 			console.log(capabilities, settings);
 			const constraints = {
-				width: { exact: capabilities.width.max },
-				height: { exact: capabilities.height.max },
+				width: { ideal: capabilities.width.max },
+				height: { ideal: capabilities.height.max },
 			};
-			await videoTrack.applyConstraints(constraints);
+			try {
+				await videoTrack.applyConstraints(constraints);
+			} catch (e) {
+				alert(e);
+			}
 			const updatedSettings = videoTrack.getSettings();
 			setMediaSettings(updatedSettings);
 			return { stream, settings: updatedSettings };
@@ -62,7 +72,6 @@ const MediaStream = () => {
 
 	useEffect(async () => {
 		const media = await getMedia();
-		console.log(media.settings);
 		if (videoRef.current) {
 			if ('srcObject' in videoRef.current) {
 				videoRef.current.srcObject = media.stream;
@@ -71,48 +80,94 @@ const MediaStream = () => {
 			} else {
 				videoRef.src = window.URL.createObjectURL(media.stream);
 			}
-			videoRef.current.width = media.settings.width;
-			videoRef.current.height = media.settings.height;
-			//window.visualViewport.height;//media.settings.height;//window.innerHeight;
+			// videoRef.current.width = media.settings.width;
+			// videoRef.current.height = media.settings.height;
+			
+			canvasRef.current.width = window.innerWidth; //media.settings.width; //window.innerWidth;
+			canvasRef.current.height = window.innerHeight; //media.settings.height; //window.innerHeight;
+			canvasRef.current.style.width = `${window.innerWidth}px`;
+			canvasRef.current.style.height = `${window.innerHeight}px`; //window.innerHeight;
+			imageCanvasRef.current.width = window.innerWidth; //media.settings.width; //window.innerWidth;
+			imageCanvasRef.current.height = window.innerHeight; //media.settings.height; //window.innerHeight;
+			imageCanvasRef.current.style.width = `${window.innerWidth}px`;
+			imageCanvasRef.current.style.height = `${window.innerHeight}px`;
+			// const heightRatio = window.innerHeight / media.settings.height;
+			// const widthRatio = window.innerWidth / media.settings.width;
+			// const ctx = canvasRef.current.getContext('2d');
 		}
-	}, [videoRef, canvasRef]);
-	const metaDataLoadHandle = (e) => {
-		console.log('loaded', mediaSettings);
+	}, [videoRef, canvasRef, imageCanvasRef]);
+
+	const paint = () => {
+		requestAnimationFrame(paint);
 		const ctx = canvasRef.current.getContext('2d');
-		canvasRef.current.width = videoRef.current.videoWidth; //window.visualViewport.width; //media.settings.width;//window.innerWidth;
-		canvasRef.current.height = videoRef.current.videoHeight;
-		// setDebugData({
-		// 	mw: mediaSettings.width,
-		// 	mh: mediaSettings.height,
-		// 	vw: videoRef.current.width,
-		// 	vh: videoRef.current.height,
-		// });
-        alert(`${mediaSettings.width} x ${mediaSettings.height}`)
-        alert(`${videoRef.current.width} x ${videoRef.current.height}`)
-		// console.log(
-		// 	'WIDTHHEIGHT',
-		// 	mediaSettings.width,
-		// 	mediaSettings.height,
-		// 	videoRef.current.videoWidth,
-		// 	videoRef.current.videoHeight,
-		// );
+		var video_width = mediaSettings.width;
+		var video_height = mediaSettings.height;
+		var ratio = video_width / video_height;
+		var target_width;
+		var target_height;
+		var y_of_video = 0;
+		var x_of_video = 0;
+		if (video_width > video_height) {
+			target_width = canvasRef.current.width;
+			target_height = canvasRef.current.width / ratio;
+			y_of_video = (canvasRef.current.height - target_height) / 2;
+		} else {
+			target_width = canvasRef.current.height;
+			target_height = canvasRef.current.height * ratio;
+			x_of_video = (canvasRef.current.width - target_width) / 2;
+		}
+		ctx.drawImage(videoRef.current, x_of_video, y_of_video, target_width, target_height);
+	};
+	const metaDataLoadHandle = (e) => {
+		// alert(`${mediaSettings.width}x${mediaSettings.height}`);
+		const newDebugData = {
+			media: `${mediaSettings.width}x${mediaSettings.height}`,
+			video: `${videoRef.current.videoWidth}x${videoRef.current.videoWidth}`,
+			avail: `${window.availWidth}x${window.availHeight}`,
+			window: `${window.innerWidth}x${window.innerHeight}`,
+		};
+		paint();
+		// setDebugData(newDebugData);
+		// setInterval(() => {
+		// 	// console.log(videoRef.current.videoWidth, videoRef.current.videoWidth, window.innerWidth, window.innerHeight);
 
-		setInterval(() => {
-			// if ( window. matchMedia("(orientation: portrait)")) {
-			//     var vRatio = (canvasRef.current.height / videoRef.current.videoHeight) * videoRef.current.videoWidth;
-			//     ctx.drawImage(videoRef.current, 0,0, vRatio, canvasRef.current.height);
+		// 	// requestAnimationFrame(() => ctx.drawImage(videoRef.current, x_of_video, y_of_video));
 
-			// } else {
-			//      // fill horizontally
-			//      var hRatio = (canvasRef.current.width / videoRef.current.videoWidth) * videoRef.current.videoHeight;
-			//      ctx.drawImage(videoRef.current, 0,0, canvasRef.current.width, hRatio);
-			// }
-			ctx.drawImage(videoRef.current, 0, 0, mediaSettings.width, mediaSettings.height);
-		}, 30);
+		// 	// ctx.drawImage(
+		// 	// 	videoRef.current,
+		// 	// 	0,
+		// 	// 	0,
+		// 	// 	videoRef.current.videoWidth,
+		// 	// 	videoRef.current.videoWidth,
+		// 	// 	0,
+		// 	// 	0,
+		// 	// 	window.innerWidth,
+		// 	// 	window.innerHeight,
+		// 	// );
+		// }, 30);
+		// ctx.drawImage(videoRef.current, 0, 0, mediaSettings.width, mediaSettings.height);
 	};
 
 	const captureImage = () => {
-		const url = canvasRef.current.toDataURL('image/png');
+		const ctx = imageCanvasRef.current.getContext('2d');
+		var video_width = mediaSettings.width;
+		var video_height = mediaSettings.height;
+		var ratio = video_width / video_height;
+		var target_width;
+		var target_height;
+		var y_of_video = 0;
+		var x_of_video = 0;
+		if (video_width > video_height) {
+			target_width = canvasRef.current.width;
+			target_height = canvasRef.current.width / ratio;
+			y_of_video = (canvasRef.current.height - target_height) / 2;
+		} else {
+			target_width = canvasRef.current.height;
+			target_height = canvasRef.current.height * ratio;
+			x_of_video = (canvasRef.current.width - target_width) / 2;
+		}
+		ctx.drawImage(videoRef.current, x_of_video, y_of_video, target_width, target_height);
+		const url = imageCanvasRef.current.toDataURL('image/png');
 		// photo.current.setAttribute('src', url);
 		downloadAnchor.current.href = url;
 		downloadAnchor.current.download = 'MyPhoto.png';
@@ -123,15 +178,24 @@ const MediaStream = () => {
 
 	return (
 		<div>
-			{debug && <div id='debug'>{getDebugData(debugData)}</div>}
-			<video
-				ref={videoRef}
-				autoPlay
-				playsInline
-				onLoadedMetadata={metaDataLoadHandle}
-				style={{ display: 'none' }}
-			></video>
-			<canvas ref={canvasRef}></canvas>
+			{debug && (
+				<div id='debug'>
+					<DebugData debugData={debugData} />
+				</div>
+			)}
+			<div style={{ marginBottom: '16px', display: 'none' }}>
+				<video
+					ref={videoRef}
+					autoPlay
+					playsInline
+					onLoadedMetadata={metaDataLoadHandle}
+					// style={{ display: 'none' }}
+				></video>
+			</div>
+			<div>
+				<canvas ref={canvasRef} style={{ border: 'solid 2px red' }}></canvas>
+				<canvas ref={imageCanvasRef} style={{ border: 'solid 2px red' }}></canvas>
+			</div>
 			<a id='downloadAnchor' href='http://chetandr.github.com' ref={downloadAnchor} style={{ display: 'none' }}>
 				image
 			</a>
