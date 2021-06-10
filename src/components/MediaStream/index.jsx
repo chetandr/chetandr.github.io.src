@@ -28,15 +28,23 @@ const MediaStream = () => {
 			} else {
 				videoRef.src = window.URL.createObjectURL(media.stream);
 			}
-			const video_width = 4096;//media.settings.width;
-			const video_height = 2160;//media.settings.height;
-			const to_width = 360;//window.innerWidth;
-			const to_height = 189;//Math.floor((to_width * video_height) / video_width); //window.innerHeight;
+			const video_width = media.settings.width;
+			const video_height = media.settings.height;
+			const to_width = window.innerWidth;
+			const to_height = Math.floor((to_width * video_height) / video_width); //window.innerHeight;
 			const ratio = media.settings.aspectRatio;
 			const scaleRatioY = to_height / video_height;
 			const scaleRatioX = to_width / video_width;
-			let to_x = -Math.ceil(scaleRatioX * 100);
-			let to_y =  -Math.ceil(scaleRatioY * 100);
+			let to_x = 0;
+			let to_y = 0;
+			if (video_width > to_width) {
+				to_x = -Math.ceil(scaleRatioX * 100);
+				to_y = -Math.ceil(scaleRatioY * 100);
+			} else {
+				to_x = -Math.ceil((video_width / to_width) * 100);
+				to_y = -Math.ceil((video_height / to_height) * 100);
+			}
+
 			// if (to_width > video_width) {
 			// 	to_x = (video_width - to_width) * scaleRatioX;
 			// 	// to_y = to_x / (scaleRatioY * ratio);
@@ -54,7 +62,7 @@ const MediaStream = () => {
 			videoWrapper.current.style.height = `${to_height}px`;
 			videoRef.current.width = video_width;
 			videoRef.current.height = video_height;
-			videoRef.current.style.transform = `translate(${to_x}px, ${to_y}px) scale(${scaleRatioX}, ${scaleRatioY})`;
+			videoRef.current.style.transform = `translate(${-videoRef.current.offsetLeft}px, ${-videoRef.current.offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
 			videoRef.current.style.transformOrigin = 'top left';
 			imageCanvasRef.current.width = video_width; //media.settings.width; //window.innerWidth;
 			imageCanvasRef.current.height = video_height; //media.settings.height; //window.innerHeight;
@@ -94,7 +102,7 @@ const MediaStream = () => {
 					<DebugData debugData={debugData} />
 				</div>
 			)}
-			<div ref={videoWrapper} style={{ marginBottom: '16px', position: 'absolute',  top:'0px', left:'0px'}}>
+			<div ref={videoWrapper} style={{ marginBottom: '16px', position: 'absolute', top: '0px', left: '0px' }}>
 				<video
 					ref={videoRef}
 					id='camvideo'
