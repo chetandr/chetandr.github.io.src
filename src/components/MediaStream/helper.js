@@ -57,7 +57,6 @@ export async function getMedia() {
         const capabilities = videoTracks[0].getCapabilities();
         const settings = videoTrack.getSettings();
         let reso = '';
-        console.log(capabilities, settings);
         if (navigator.platform.indexOf('Mac') > -1) {
             try {
                 // DCI 4K - iCam 12 MP

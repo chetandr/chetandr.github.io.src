@@ -13,8 +13,8 @@ function App() {
 		<Router>
 			<Switch>
 				<Route exact path='/'>
-					<div className='App'>
-						<header className='App-header'>
+					<div >
+						<header>
 							<DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
 								<MediaStream />
 							</DndProvider>
