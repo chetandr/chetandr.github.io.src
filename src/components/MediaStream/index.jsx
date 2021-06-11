@@ -1,27 +1,87 @@
 import React, { useCallback, useEffect } from 'react';
 import { getMedia, getReso } from './helper';
+import { useDrag, useDragDropManager, useDrop } from 'react-dnd';
 
+import ArrowForwardRounded from '@material-ui/icons/ArrowForwardRounded';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DebugData from '../DebugData';
 import IconButton from '@material-ui/core/IconButton';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
-import SettingsOverscanIcon from '@material-ui/icons/SettingsOverscan';
+import { usePreview } from 'react-dnd-preview';
+
+const ItemTypes = {
+	BOUNDARY: 'boundry',
+};
 
 const MediaStream = () => {
-	const debug = true;
+	const debug = false;
 	const videoRef = React.useRef();
 	const videoWrapper = React.useRef();
-	const imageRef = React.useRef();
+	const container = React.useRef();
 
+	const imageRef = React.useRef();
+	const bboxWrapper = React.useRef();
 	const canvasRef = React.useRef();
 	const imageCanvasRef = React.useRef();
-
+	const [currentBBox, setCurrentBBox] = React.useState();
 	const downloadAnchor = React.useRef();
 	const [mediaSettings, setMediaSettings] = React.useState({});
 	const [debugData, setDebugData] = React.useState({});
 	const [capturing, setCapturing] = React.useState(false);
+	const [bboxProperties, setBboxProperties] = React.useState();
 	const [stage, setStage] = React.useState('INIT');
-
+	const dragDropManager = useDragDropManager();
+	const monitor = dragDropManager.getMonitor();
+	const imageBboxRef = React.useRef();
+	const [currentPosition, setCurrentPosition] = React.useState({ x: 0, y: 0 });
+	const [dragInitPositionDiff, setDragInitPositionDiff] = React.useState({ x: 0, y: 0 });
+	const [{ isDragging }, bbox] = useDrag(() => ({
+		type: ItemTypes.BOUNDARY,
+		collect: (monitor) => ({
+			isDragging: !!monitor.isDragging(),
+		}),
+	}));
+	const [{ isOver }, drop] = useDrop(
+		() => ({
+			accept: ItemTypes.BOUNDARY,
+			drop: () => moveBox(currentBBox, currentPosition, dragInitPositionDiff),
+			collect: (monitor) => ({
+				isOver: !!monitor.isOver(),
+			}),
+		}),
+		[currentPosition, dragInitPositionDiff, currentBBox],
+	);
+	const moveBox = (cbbox, cp, diff) => {
+		const x = cp.x - diff.x;
+		const y = cp.y - diff.y;
+		console.log(cbbox, cp, diff);
+		const rbox = cbbox.current.getClientRects();
+		const x1 = x + rbox[0].width;
+		const y1 = y + rbox[0].height;
+		cbbox.current.style.left = `${x}px`;
+		cbbox.current.style.top = `${y}px`;
+		const newBboxProperties = {
+			...bboxProperties,
+			[cbbox.current.id]: [
+				{ x, y },
+				{ x: x1, y: y1 },
+			],
+		};
+		setBboxProperties(newBboxProperties);
+		// drag.current.left = `${currentPosition.x}px`;
+		// drag.current.top = `${currentPosition.y}px`;
+	};
+	const MyPreview = () => {
+		const { display, itemType, item, style } = usePreview();
+		if (!display) {
+			return null;
+		}
+		return (
+			<div className='boundingBoxWrapper' style={style}>
+				<div className='boundingBox'></div>
+			</div>
+		);
+	};
 	const renderMedia = React.useCallback(async () => {
 		const media = await getMedia();
 		if (videoRef.current) {
@@ -33,7 +93,7 @@ const MediaStream = () => {
 			setMediaSettings(media.settings);
 			const video_width = media.settings.width;
 			const video_height = media.settings.height;
-			const to_width = document.documentElement.clientWidth; //window.innerWidth;
+			const to_width = videoWrapper.current.offsetWidth; //document.documentElement.clientWidth; //window.innerWidth;
 			const to_height = Math.floor((to_width * video_height) / video_width); //window.innerHeight;
 			const ratio = media.settings.aspectRatio;
 			const scaleRatioY = to_height / video_height;
@@ -94,15 +154,15 @@ const MediaStream = () => {
 	const captureImage = () => {
 		const video_width = mediaSettings.width;
 		const video_height = mediaSettings.height;
-		const to_width = document.documentElement.clientWidth; //window.innerWidth;
-		const to_height = document.documentElement.clientHeight; //Math.floor((to_width * video_height) / video_width); //window.innerHeight;
+		const to_width = videoWrapper.current.offsetWidth; //document.documentElement.clientWidth; //window.innerWidth;
+		const to_height = Math.floor((to_width * video_height) / video_width); //window.innerHeight;
 		// const ratio = media.settings.aspectRatio;
 		const scaleRatioY = to_height / video_height;
 		const scaleRatioX = to_width / video_width;
 		const ctx = imageCanvasRef.current.getContext('2d');
 		setCapturing(true);
 		videoRef.current.pause();
-		videoRef.current.currentTime = 0;
+		// videoRef.current.currentTime = 0;
 		// ctx.scale(scaleRatioX, scaleRatioY);
 		ctx.drawImage(videoRef.current, 0, 0);
 
@@ -122,81 +182,83 @@ const MediaStream = () => {
 		// //
 		// window.URL.revokeObjectURL(url);
 		setTimeout(() => setCapturing(false), 3000);
-		setStage('CAPTURED');
+		setStage('BBOX');
 	};
 
-	// const paint = () => {
-	// 	requestAnimationFrame(paint);
-	// 	const ctx = canvasRef.current.getContext('2d');
-	// 	const video_width = mediaSettings.width;
-	// 	const video_height = mediaSettings.height;
-	// 	const to_width = window.innerWidth;
-	// 	const to_height = Math.floor((to_width * video_height) / video_width); //window.innerHeight;
-	// 	var ratio = video_width / video_height;
-	// 	var target_width;
-	// 	var target_height;
-	// 	var y_of_video = 0;
-	// 	var x_of_video = 0;
-	// 	// if (video_width > video_height) {
-	// 	// 	target_width = canvasRef.current.width;
-	// 	// 	target_height = canvasRef.current.width / ratio;
-	// 	// 	y_of_video = (canvasRef.current.height - target_height) / 2;
-	// 	// } else {
-	// 	// 	target_width = canvasRef.current.height;
-	// 	// 	target_height = canvasRef.current.height * ratio;
-	// 	// 	x_of_video = (canvasRef.current.width - target_width) / 2;
-	// 	// }
-	// 	ctx.drawImage(videoRef.current, 0, 0, to_width, to_height);
-	// };
-	// const metaDataLoadHandle = (e) => {
-	// 	// alert(`${mediaSettings.width}x${mediaSettings.height}`);
-	// 	const newDebugData = {
-	// 		media: `${mediaSettings.width}x${mediaSettings.height}`,
-	// 		video: `${videoRef.current.videoWidth}x${videoRef.current.videoWidth}`,
-	// 		avail: `${window.availWidth}x${window.availHeight}`,
-	// 		window: `${window.innerWidth}x${window.innerHeight}`,
-	// 	};
-	// 	paint();
-	// 	// setDebugData(newDebugData);
-	// 	// setInterval(() => {
-	// 	// 	// console.log(videoRef.current.videoWidth, videoRef.current.videoWidth, window.innerWidth, window.innerHeight);
+	const captureBox = () => {
+		const video_width = mediaSettings.width;
+		const video_height = mediaSettings.height;
+		const to_width = videoWrapper.current.offsetWidth; //document.documentElement.clientWidth; //window.innerWidth;
+		const to_height = Math.floor((to_width * video_height) / video_width); //window.innerHeight;
+		// const ratio = media.settings.aspectRatio;
+		const scaleRatioY = to_height / video_height;
+		const scaleRatioX = to_width / video_width;
+		const ctx = imageCanvasRef.current.getContext('2d');
+		ctx.lineWidth = '2';
+	
+		ctx.globalAlpha = 0.2;
+		ctx.fillStyle = '#FFD600';
 
-	// 	// 	// requestAnimationFrame(() => ctx.drawImage(videoRef.current, x_of_video, y_of_video));
+		ctx.fillRect(
+			bboxWrapper.current.offsetLeft / scaleRatioX,
+			bboxWrapper.current.offsetTop / scaleRatioY,
+			bboxWrapper.current.offsetWidth / scaleRatioX,
+			bboxWrapper.current.offsetHeight / scaleRatioY,
+		);
+		ctx.globalAlpha = 0.2;
+		ctx.strokeStyle = '#ff7300';
+		ctx.stroke();
+		setCapturing(true);
+		// videoRef.current.pause();
+		// videoRef.current.currentTime = 0;
+		// // ctx.scale(scaleRatioX, scaleRatioY);
+		// ctx.drawImage(videoRef.current, 0, 0);
 
-	// 	// 	// ctx.drawImage(
-	// 	// 	// 	videoRef.current,
-	// 	// 	// 	0,
-	// 	// 	// 	0,
-	// 	// 	// 	videoRef.current.videoWidth,
-	// 	// 	// 	videoRef.current.videoWidth,
-	// 	// 	// 	0,
-	// 	// 	// 	0,
-	// 	// 	// 	window.innerWidth,
-	// 	// 	// 	window.innerHeight,
-	// 	// 	// );
-	// 	// }, 30);
-	// 	// ctx.drawImage(videoRef.current, 0, 0, mediaSettings.width, mediaSettings.height);
-	// };
+		const url = imageCanvasRef.current.toDataURL('image/png');
+		imageBboxRef.current.src = url;
+		videoRef.current.style.display = 'none';
+		imageBboxRef.current.style.display = 'block';
+		imageRef.current.style.display = 'none';
+		// imageRef.current.style.transform = `translate(${-videoRef.current.offsetLeft}px, ${-videoRef.current
+		// .offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
+		imageBboxRef.current.style.transformOrigin = 'top left';
+		videoRef.current.style.display = 'none';
+		imageBboxRef.current.style.display = 'block';
+		// photo.current.setAttribute('src', url);
+		// downloadAnchor.current.href = url;
+		// downloadAnchor.current.download = 'MyPhoto.png';
+		// downloadAnchor.current.click();
+		// //
+		// window.URL.revokeObjectURL(url);
+		setTimeout(() => setCapturing(false), 3000);
+		setStage('CAPTURED');
+	};
+	React.useEffect(() => {
+		monitor.subscribeToOffsetChange(() => {
+			const offset = monitor.getClientOffset();
+			const initialClientOffset = monitor.getInitialClientOffset();
+			const initialSourceClientOffset = monitor.getInitialSourceClientOffset();
+			if (initialClientOffset && initialSourceClientOffset) {
+				setDragInitPositionDiff({
+					x: initialClientOffset.x - initialSourceClientOffset.x,
+					y: initialClientOffset.y - initialSourceClientOffset.y,
+				});
+				setCurrentPosition(offset);
+			}
 
+			// do stuff like setState, though consider directly updating style through refs for performance
+		});
+	}, [monitor]);
+
+	console.log('DRAGGING', isDragging);
 	return (
-		<div>
+		<div ref={drop}>
 			{debug && (
 				<div id='debug'>
 					<DebugData debugData={debugData} />
 				</div>
 			)}
-			<div
-				ref={videoWrapper}
-				style={{
-					marginBottom: '16px',
-					position: 'absolute',
-					top: '0px',
-					left: '0px',
-					overflow: 'hidden',
-					width: '100vw',
-					height: '100vh',
-				}}
-			>
+			<div ref={videoWrapper} className='videoWrapper'>
 				{/* <div ref={videoWrapper}> */}
 				<video
 					ref={videoRef}
@@ -208,6 +270,7 @@ const MediaStream = () => {
 					// className="videosize"
 				></video>
 				<img ref={imageRef} style={{ border: 'solid 2px red', display: 'none' }}></img>
+				<img ref={imageBboxRef} style={{ border: 'solid 2px red', display: 'none' }}></img>
 			</div>
 
 			<div>
@@ -217,6 +280,25 @@ const MediaStream = () => {
 			<a id='downloadAnchor' href='http://chetandr.github.com' ref={downloadAnchor} style={{ display: 'none' }}>
 				image
 			</a>
+			{stage === 'BBOX' && (
+				<div
+					className='boundingBoxWrapper'
+					id='bbox'
+					ref={bboxWrapper}
+					onTouchStart={() => setCurrentBBox(bboxWrapper)}
+					onMouseDown={() => setCurrentBBox(bboxWrapper)}
+					style={{ opacity: isDragging ? 0 : 1 }}
+				>
+					<div
+						className='boundingBox'
+						ref={bbox}
+						style={{
+							cursor: 'move',
+							display: 'inline-block',
+						}}
+					></div>
+				</div>
+			)}
 			<div id='changeVideo'>
 				{stage === 'INIT' && (
 					<IconButton
@@ -227,26 +309,27 @@ const MediaStream = () => {
 						// ref={snap}
 						onClick={captureImage}
 					>
-						<PhotoCamera style={{ fontSize: 100 }} />
+						<PhotoCamera style={{ fontSize: 64 }} />
+					</IconButton>
+				)}
+				{stage === 'BBOX' && (
+					<IconButton
+						color='primary'
+						aria-label='upload picture'
+						component='span'
+						variant='contained'
+						// ref={snap}
+						onClick={captureBox}
+					>
+						<ArrowForwardRounded style={{ fontSize: 64 }} />
 					</IconButton>
 				)}
 			</div>
-			{/* <div id='additionalButtons'>
-				<IconButton
-					color='secondary'
-					aria-label='upload picture'
-					component='span'
-					variant='contained'
-					ref={snap}
-					onClick={addBBox}
-					disabled={bboxCount >= allowedBBoxes}
-				>
-					<SettingsOverscanIcon style={{ fontSize: 100 }} />
-				</IconButton>
-			</div> */}
+
 			<a id='downloadAnchor' href='http://chetandr.github.com' ref={downloadAnchor} style={{ display: 'none' }}>
 				image
 			</a>
+			<MyPreview />
 		</div>
 	);
 };

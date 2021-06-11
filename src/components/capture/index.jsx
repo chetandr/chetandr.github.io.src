@@ -112,9 +112,9 @@ const Capture = () => {
 		});
 	}, [monitor]);
 
-	const _onMouseMove = (e) => {
-		setCurrentPosition({ x: e.screenX, y: e.screenY });
-	};
+	// const _onMouseMove = (e) => {
+	// 	setCurrentPosition({ x: e.screenX, y: e.screenY });
+	// };
 
 	const [{ isOver }, drop] = useDrop(
 		() => ({
@@ -433,7 +433,8 @@ const Capture = () => {
 							cursor: 'move',
 							display: displayBox.disp0 ? 'inline-block' : 'none',
 						}}
-					></div>
+					>
+					</div>
 				</div>
 				<div
 					className='boundingBoxWrapper1'
