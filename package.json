@@ -18,6 +18,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "roboto-fontface": "^0.10.0",
     "ua-parser-js": "^0.7.28",
     "web-vitals": "^1.0.1"
   },
@@ -44,5 +45,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "typescript": "^4.3.2"
   }
 }

@@ -453,7 +453,56 @@ body {
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	overflow: hidden;
+	/* overflow: hidden; */
 	width: 100vw;
 	height: 100vh;
+}
+
+.translucent {
+	background-color: #000;
+    opacity: .8;
+}
+
+.window {
+	border: solid  2px;
+	position: relative;
+}
+
+.windowCorner {
+	height: calc(10vw);
+	width: calc(10vw);
+	position: absolute;
+}
+
+.topLeftWindowCorner {
+	border-top: solid  5px; 
+	border-left: solid  5px;
+	top: -5px;
+	left: -5px;
+	z-index: 101;
+}
+
+.topRightWindowCorner {
+	border-top: solid  5px; 
+	border-right: solid  5px;
+	top: -5px;
+	right: -5px;
+	z-index: 101;
+
+}
+.bottomLeftWindowCorner {
+	border-bottom: solid  5px; 
+	border-left: solid  5px;
+	bottom: -5px;
+	left: -5px;
+	z-index: 101;
+
+}
+.bottomRightWindowCorner {
+	border-bottom: solid  5px; 
+	border-right: solid  5px;
+	bottom: -5px;
+	right: -5px;
+	z-index: 101;
+
 }

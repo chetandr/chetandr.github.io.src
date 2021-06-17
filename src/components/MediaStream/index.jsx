@@ -7,8 +7,11 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import DebugData from '../DebugData';
 import IconButton from '@material-ui/core/IconButton';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
+import Replay from '@material-ui/icons/Replay';
 import { usePreview } from 'react-dnd-preview';
-
+import { DndProvider } from 'react-dnd';
+// import Hierarchy from './components/Hierarchy';
+import { TouchBackend } from 'react-dnd-touch-backend';
 const ItemTypes = {
 	BOUNDARY: 'boundry',
 };
@@ -82,6 +85,46 @@ const MediaStream = () => {
 			</div>
 		);
 	};
+
+	const getTargetDimensions = (ms) => {
+		const video_width = ms.width;
+		const video_height = ms.height;
+		let to_width = videoWrapper.current.offsetWidth;
+		let to_height = videoWrapper.current.offsetHeight;
+		if(to_width > to_height) {
+			to_height = Math.floor((to_width * video_height) / video_width);
+		} else {
+			to_width = Math.floor((to_height * video_width) / video_height);
+		}
+		const scaleRatioY = to_height / video_height;
+		const scaleRatioX = to_width / video_width;
+		let to_x = 0;
+		let to_y = 0;
+		if(to_width > document.documentElement.clientWidth) {
+			to_x = -(to_width - document.documentElement.clientWidth) / 2
+		}
+		// if(to_width > to_height) { 
+		// 	if (video_width > to_width) {
+		// 		to_x = -Math.ceil(scaleRatioX * 100);
+		// 		to_y = -Math.ceil(scaleRatioY * 100);
+		// 	} else {
+		// 		to_x = -Math.ceil((video_width / to_width) * 100);
+		// 		to_y = -Math.ceil((video_height / to_height) * 100);
+		// 	}
+		// } else {
+		// 	if (video_width > to_height) {
+		// 		to_x = (video_width - to_height) / 2;
+		// 		to_y = -Math.ceil(scaleRatioY * 100);
+		// 	} else {
+		// 		to_x = -Math.ceil((video_width / to_width) * 100);
+		// 		to_y = -Math.ceil((video_height / to_height) * 100);
+		// 	}
+		// }
+		
+		console.log(video_width, video_height, to_width, to_height, to_x, to_y)
+		return [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY]
+
+	}
 	const renderMedia = React.useCallback(async () => {
 		const media = await getMedia();
 		if (videoRef.current) {
@@ -91,44 +134,21 @@ const MediaStream = () => {
 				videoRef.src = window.URL.createObjectURL(media.stream);
 			}
 			setMediaSettings(media.settings);
-			const video_width = media.settings.width;
-			const video_height = media.settings.height;
-			const to_width = videoWrapper.current.offsetWidth; //document.documentElement.clientWidth; //window.innerWidth;
-			const to_height = Math.floor((to_width * video_height) / video_width); //window.innerHeight;
-			const ratio = media.settings.aspectRatio;
-			const scaleRatioY = to_height / video_height;
-			const scaleRatioX = to_width / video_width;
-			let to_x = 0;
-			let to_y = 0;
-			if (video_width > to_width) {
-				to_x = -Math.ceil(scaleRatioX * 100);
-				to_y = -Math.ceil(scaleRatioY * 100);
-			} else {
-				to_x = -Math.ceil((video_width / to_width) * 100);
-				to_y = -Math.ceil((video_height / to_height) * 100);
-			}
+			const [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY] = getTargetDimensions(media.settings);
 
-			// if (to_width > video_width) {
-			// 	to_x = (video_width - to_width) * scaleRatioX;
-			// 	// to_y = to_x / (scaleRatioY * ratio);
-			// } else {
-			// 	to_x = (to_width - video_width) * (video_width/(to_width * 100));
-			// 	to_y = (to_height - video_height) * (video_height/(to_height * 100));
-
-			// }
-			// if (to_width < video_width) {
-			// 	to_x = (to_width - video_width) / 2;
-			// 	to_y = to_x / (scaleRatioY * ratio);
-			// }
-			// videoWrapper.current.style.width = `${to_width}px`;
-			// videoWrapper.current.style.height = `${to_height}px`;
 			videoRef.current.width = video_width;
 			videoRef.current.height = video_height;
 			imageRef.current.width = video_width;
 			imageRef.current.height = video_height;
-
-			videoRef.current.style.transform = `translate(${-videoRef.current.offsetLeft}px, ${-videoRef.current
-				.offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
+			if(to_width < document.documentElement.clientWidth) { 
+				videoRef.current.style.transform = `translate(${-videoRef.current.offsetLeft}px, ${-videoRef.current
+					.offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
+			} else {
+				console.log(`translate(${-to_x}px, ${-to_y}px) scale(${scaleRatioX}, ${scaleRatioY})`)
+				videoRef.current.style.transform = `translate(${to_x}px, ${-videoRef.current
+					.offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
+			}
+			
 			videoRef.current.style.transformOrigin = 'top left';
 			imageCanvasRef.current.width = video_width; //media.settings.width; //window.innerWidth;
 			imageCanvasRef.current.height = video_height; //media.settings.height; //window.innerHeight;
@@ -152,13 +172,8 @@ const MediaStream = () => {
 	}, [videoRef, videoWrapper, canvasRef, imageCanvasRef]);
 
 	const captureImage = () => {
-		const video_width = mediaSettings.width;
-		const video_height = mediaSettings.height;
-		const to_width = videoWrapper.current.offsetWidth; //document.documentElement.clientWidth; //window.innerWidth;
-		const to_height = Math.floor((to_width * video_height) / video_width); //window.innerHeight;
-		// const ratio = media.settings.aspectRatio;
-		const scaleRatioY = to_height / video_height;
-		const scaleRatioX = to_width / video_width;
+		const [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY] = getTargetDimensions(mediaSettings);
+
 		const ctx = imageCanvasRef.current.getContext('2d');
 		setCapturing(true);
 		videoRef.current.pause();
@@ -195,7 +210,7 @@ const MediaStream = () => {
 		const scaleRatioX = to_width / video_width;
 		const ctx = imageCanvasRef.current.getContext('2d');
 		ctx.lineWidth = '2';
-	
+
 		ctx.globalAlpha = 0.2;
 		ctx.fillStyle = '#FFD600';
 
@@ -205,7 +220,7 @@ const MediaStream = () => {
 			bboxWrapper.current.offsetWidth / scaleRatioX,
 			bboxWrapper.current.offsetHeight / scaleRatioY,
 		);
-		ctx.globalAlpha = 0.2;
+		ctx.globalAlpha = 1;
 		ctx.strokeStyle = '#ff7300';
 		ctx.stroke();
 		setCapturing(true);
@@ -219,6 +234,7 @@ const MediaStream = () => {
 		videoRef.current.style.display = 'none';
 		imageBboxRef.current.style.display = 'block';
 		imageRef.current.style.display = 'none';
+		// videoWrapper.current.style.oveflor ='auto';
 		// imageRef.current.style.transform = `translate(${-videoRef.current.offsetLeft}px, ${-videoRef.current
 		// .offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
 		imageBboxRef.current.style.transformOrigin = 'top left';
@@ -249,7 +265,16 @@ const MediaStream = () => {
 			// do stuff like setState, though consider directly updating style through refs for performance
 		});
 	}, [monitor]);
-
+	const reset = () => {
+		videoRef.current.style.display = 'block';
+		const ctx = imageCanvasRef.current.getContext('2d');
+		ctx.clearRect(0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+		ctx.globalAlpha = 1;
+		imageBboxRef.current.style.display = 'none';
+		imageRef.current.style.display = 'none';
+		videoRef.current.play();
+		setStage('INIT');
+	};
 	console.log('DRAGGING', isDragging);
 	return (
 		<div ref={drop}>
@@ -258,7 +283,11 @@ const MediaStream = () => {
 					<DebugData debugData={debugData} />
 				</div>
 			)}
-			<div ref={videoWrapper} className='videoWrapper'>
+			<div
+				ref={videoWrapper}
+				className='videoWrapper'
+				style={{ overflow: stage === 'CAPTURED' ? 'auto' : 'hidden' }}
+			>
 				{/* <div ref={videoWrapper}> */}
 				<video
 					ref={videoRef}
@@ -299,33 +328,6 @@ const MediaStream = () => {
 					></div>
 				</div>
 			)}
-			<div id='changeVideo'>
-				{stage === 'INIT' && (
-					<IconButton
-						color='primary'
-						aria-label='upload picture'
-						component='span'
-						variant='contained'
-						// ref={snap}
-						onClick={captureImage}
-					>
-						<PhotoCamera style={{ fontSize: 64 }} />
-					</IconButton>
-				)}
-				{stage === 'BBOX' && (
-					<IconButton
-						color='primary'
-						aria-label='upload picture'
-						component='span'
-						variant='contained'
-						// ref={snap}
-						onClick={captureBox}
-					>
-						<ArrowForwardRounded style={{ fontSize: 64 }} />
-					</IconButton>
-				)}
-			</div>
-
 			<a id='downloadAnchor' href='http://chetandr.github.com' ref={downloadAnchor} style={{ display: 'none' }}>
 				image
 			</a>
