@@ -9,15 +9,24 @@ import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import findIndex from 'lodash/findIndex';
 import startCase from 'lodash/startCase';
 // import { useRouter } from 'next/router';
 import { useParams, useHistory } from 'react-router-dom';
-const getComposed = ({ type, step, push, prevIndex, currentIndex, nextIndex }) => {
+import useFullscreen from '../utils/useFullScreen';
+const getComposed = ({ type, step, push, prevIndex, currentIndex, nextIndex, setIsFullscreen, exitFullscreen }) => {
 	let Component = [];
 
-	const nextAction = () => {
+	const nextAction = (e) => {
 		const href = `/journey/${mockJourney[nextIndex].type}/${mockJourney[nextIndex].step}`;
+		console.log("nextAction",mockJourney[nextIndex].type.toLowerCase())
+		if (mockJourney[nextIndex].type.toLowerCase() === 'inspection') {
+			setIsFullscreen();
+		} else {
+			exitFullscreen();
+		}
 		push(href);
 	};
 	console.log('Module', startCase(type), startCase(step).split(' ').join(''));
@@ -44,13 +53,22 @@ const getCurrentAndNext = (type, step) => {
 };
 
 const Journey = () => {
-	// const router = useRouter();
+	const container = React.useRef();
 	let { type, step } = useParams();
+	let isFullscreen, setIsFullscreen, exitFullscreen;
 	if (!type && !step) {
 		type = mockJourney[0].type;
 		step = mockJourney[0].step;
 	}
+	try {
+		[isFullscreen, setIsFullscreen, exitFullscreen] = useFullscreen(container);
+	} catch (e) {
+		console.log('Fullscreen not supported');
+		isFullscreen = false;
+		setIsFullscreen = undefined;
+	}
 	const history = useHistory();
+
 	const [prevIndex, currentIndex, nextIndex] = getCurrentAndNext(type, step);
 	const currentAction = mockJourney[currentIndex];
 	if (type && step) {
@@ -62,12 +80,24 @@ const Journey = () => {
 						<Container>
 							{type &&
 								step &&
-								getComposed({ type, step, push: history.push, prevIndex, currentIndex, nextIndex })}
+								getComposed({ type, step, push: history.push, prevIndex, currentIndex, nextIndex, setIsFullscreen, exitFullscreen })}
 						</Container>
 					) : (
 						type &&
-						step &&
-						getComposed({ type, step, push: history.push, prevIndex, currentIndex, nextIndex })
+						step && (
+							<Box ref={container}>
+								{getComposed({
+									type,
+									step,
+									push: history.push,
+									prevIndex,
+									currentIndex,
+									nextIndex,
+									setIsFullscreen,
+									exitFullscreen
+								})}
+							</Box>
+						)
 					)}
 				</MuiThemeProvider>
 			</React.Fragment>

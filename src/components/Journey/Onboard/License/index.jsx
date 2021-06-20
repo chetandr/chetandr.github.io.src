@@ -7,12 +7,20 @@ import OverlayWindow from '../../../OverlayWindow';
 import MediaStreamWithDnD from '../../../MediaStreamWithDnD';
 import OverlayMessageBox from '../../../OverlayMessageBox';
 import RoundedButton from '../../../RoundedButton';
-import { Typography } from '@material-ui/core';
+import { DialogTitle, Typography } from '@material-ui/core';
+import { Dialog, DialogActions } from '@material-ui/core';
+import styled from "@material-ui/core/styles/styled"
+
+const Divider = styled(Box)({
+	height: '1px',
+	backgroundColor: '#EBEBEB',
+})
 const License = (props) => {
 	const handleClicked = () => {
 		console.log('next Clicked', props.nextAction);
 		props.nextAction();
 	};
+	const [detailsOpen, setDetailsOpen] = React.useState(false)
 
 	return (
 		<React.Fragment>
@@ -31,7 +39,7 @@ const License = (props) => {
 										size='small'
 										fullWidth={false}
 										label='License Disc'
-										onClick={handleClicked}
+										onClick={() => setDetailsOpen(true)}
 									/>
 								</Box>
 							</Grid>
@@ -65,6 +73,33 @@ const License = (props) => {
             <Box p={4} style={{ display: 'block', width: '100%', position: 'absolute', top: "64%", zIndex: 200, textAlign: "center", color: "white" }}>
 				<Typography>Move Closer to the scan area.</Typography>
 			</Box>
+			<Dialog open={detailsOpen} size='md'>
+				<DialogTitle>Details found !</DialogTitle>
+				<Box p={1} m={2} textAlign='center'>
+					<Typography variant="h6" >SCANIA</Typography>
+					<Divider/>
+					<Typography variant="body2" textAlign='center'>Make</Typography>
+				</Box>
+				<Box p={1} m={2} textAlign='center'>
+					<Typography variant="h6" >Truck Tractor / Voorspanmotor</Typography>
+					<Divider/>
+					<Typography variant="body2" textAlign='center'>Model</Typography>
+				</Box>
+				<Box p={1} m={2} textAlign='center'>
+					<Typography variant="h6" >CND64NC</Typography>
+					<Divider/>
+					<Typography variant="body2" textAlign='center'>License No</Typography>
+				</Box>
+				<Box p={1} m={2} textAlign='center'>
+					<Typography variant="h6" >9BSR 6X40 0038 86738</Typography>
+					<Divider/>
+					<Typography variant="body2" textAlign='center'>Vin No</Typography>
+				</Box>
+				<DialogActions>
+					<RoundedButton label="Retake" color="tertiary"></RoundedButton>
+					<RoundedButton label="Confirm" onClick={handleClicked}></RoundedButton>
+				</DialogActions>
+			</Dialog>
 		</React.Fragment>
 	);
 	// return <Backdrop open={true}></Backdrop>

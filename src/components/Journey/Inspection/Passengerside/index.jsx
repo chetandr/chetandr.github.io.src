@@ -32,7 +32,7 @@ const License = (props) => {
 					color: 'white',
 				}}
 			>
-				<Typography>Position Front of the car within the outlines and take a photo.</Typography>
+				<Typography>Position passenger side of the car within the outlines and take a photo.</Typography>
 			</Box>
 
 			<MediaStreamWithDnD />

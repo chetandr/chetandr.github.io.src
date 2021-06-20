@@ -32,7 +32,7 @@ const License = (props) => {
 					color: 'white',
 				}}
 			>
-				<Typography>Position Front of the car within the outlines and take a photo.</Typography>
+				<Typography>Position rear of the car within the outlines and take a photo.</Typography>
 			</Box>
 
 			<MediaStreamWithDnD />
@@ -51,7 +51,7 @@ const License = (props) => {
 					color: 'white',
 				}}
 			>
-				<OverlayImage image='RearFull.png' />
+				<OverlayImage image='RearFull.png' width="50%"/>
 			</Box>
 		</React.Fragment>
 	);

@@ -14,7 +14,7 @@ const CSAItheme = createMuiTheme({
 	},
 	palette: {
 		primary: {
-			main: '#EE1B2E',
+			main: '#EDA03A',
 		},
 		secondary: {
 			main: 'rgb(126, 244, 36)',
@@ -26,6 +26,12 @@ const CSAItheme = createMuiTheme({
 				color: '#FFF',
 			},
 		},
+		MuiCardMedia : {
+			img : {
+				borderTopLeftRadius : '16px',
+				borderTopRightRadius : '16px'
+			}
+		}
 	},
 });
 
