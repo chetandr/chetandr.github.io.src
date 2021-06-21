@@ -19,18 +19,18 @@ export default function useFullscreen(elRef) {
 	};
 
 	const exitFullscreen = () => {
-		console.log(elRef.current);
-		if (elRef.current == null) return;
-		document
-			.exitFullscreen()
-			.then(() => {
-				console.log(document[getBrowserFullscreenElementProp()]);
-				setIsFullscreen(false);
-			})
-			.catch((e) => {
-				console.log('Full screen error', e.message);
-				setIsFullscreen(false);
-			});
+		if (document.fullscreenElement !== null) {
+			if (document && document.exitFullscreen) {
+				console.log('exitFullscreen', exitFullscreen);
+				document.exitFullscreen();
+			} else if (document && document.webkitExitFullscreen) {
+				/* Safari */
+				document.webkitExitFullscreen();
+			} else if (document && document.msExitFullscreen) {
+				/* IE11 */
+				document.msExitFullscreen();
+			}
+		}
 	};
 
 	React.useLayoutEffect(() => {

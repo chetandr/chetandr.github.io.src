@@ -9,18 +9,18 @@ import OverlayMessageBox from '../../../OverlayMessageBox';
 import RoundedButton from '../../../RoundedButton';
 import { DialogTitle, Typography } from '@material-ui/core';
 import { Dialog, DialogActions } from '@material-ui/core';
-import styled from "@material-ui/core/styles/styled"
+import styled from '@material-ui/core/styles/styled';
 
 const Divider = styled(Box)({
 	height: '1px',
 	backgroundColor: '#EBEBEB',
-})
+});
 const License = (props) => {
 	const handleClicked = () => {
 		console.log('next Clicked', props.nextAction);
 		props.nextAction();
 	};
-	const [detailsOpen, setDetailsOpen] = React.useState(false)
+	const [detailsOpen, setDetailsOpen] = React.useState(false);
 
 	return (
 		<React.Fragment>
@@ -61,7 +61,18 @@ const License = (props) => {
 					</Box>
 				</OverlayMessageBox>
 			</Box>
-			<Box p={4} style={{ display: 'block', width: '100%', position: 'absolute', top: "20%", zIndex: 200, textAlign: "center", color: "white" }}>
+			<Box
+				p={4}
+				style={{
+					display: 'block',
+					width: '100%',
+					position: 'absolute',
+					top: '20%',
+					zIndex: 200,
+					textAlign: 'center',
+					color: 'white',
+				}}
+			>
 				<Typography>Place our License disc within the frames and hold it there for a few second.</Typography>
 			</Box>
 			<Box></Box>
@@ -70,34 +81,57 @@ const License = (props) => {
 			<Box style={{ postion: 'absolute', top: 0, left: 0 }}>
 				<OverlayWindow windowSize={24} />
 			</Box>
-            <Box p={4} style={{ display: 'block', width: '100%', position: 'absolute', top: "64%", zIndex: 200, textAlign: "center", color: "white" }}>
+			<Box
+				p={4}
+				style={{
+					display: 'block',
+					width: '100%',
+					position: 'absolute',
+					top: '64%',
+					zIndex: 200,
+					textAlign: 'center',
+					color: 'white',
+				}}
+			>
 				<Typography>Move Closer to the scan area.</Typography>
 			</Box>
 			<Dialog open={detailsOpen} size='md'>
-				<DialogTitle>Details found !</DialogTitle>
+				<DialogTitle disableTypography='false'>
+					<Typography variant='h4' style={{ textAlign: 'center' }}>
+						Details found !
+					</Typography>
+				</DialogTitle>
 				<Box p={1} m={2} textAlign='center'>
-					<Typography variant="h6" >SCANIA</Typography>
-					<Divider/>
-					<Typography variant="body2" textAlign='center'>Make</Typography>
+					<Typography variant='h6'>SCANIA</Typography>
+					<Divider />
+					<Typography variant='body2' textAlign='center'>
+						Make
+					</Typography>
 				</Box>
 				<Box p={1} m={2} textAlign='center'>
-					<Typography variant="h6" >Truck Tractor / Voorspanmotor</Typography>
-					<Divider/>
-					<Typography variant="body2" textAlign='center'>Model</Typography>
+					<Typography variant='h6'>Truck Tractor / Voorspanmotor</Typography>
+					<Divider />
+					<Typography variant='body2' textAlign='center'>
+						Model
+					</Typography>
 				</Box>
 				<Box p={1} m={2} textAlign='center'>
-					<Typography variant="h6" >CND64NC</Typography>
-					<Divider/>
-					<Typography variant="body2" textAlign='center'>License No</Typography>
+					<Typography variant='h6'>CND64NC</Typography>
+					<Divider />
+					<Typography variant='body2' textAlign='center'>
+						License No
+					</Typography>
 				</Box>
 				<Box p={1} m={2} textAlign='center'>
-					<Typography variant="h6" >9BSR 6X40 0038 86738</Typography>
-					<Divider/>
-					<Typography variant="body2" textAlign='center'>Vin No</Typography>
+					<Typography variant='h6'>9BSR 6X40 0038 86738</Typography>
+					<Divider />
+					<Typography variant='body2' textAlign='center'>
+						Vin No
+					</Typography>
 				</Box>
 				<DialogActions>
-					<RoundedButton label="Retake" color="tertiary"></RoundedButton>
-					<RoundedButton label="Confirm" onClick={handleClicked}></RoundedButton>
+					<RoundedButton label='Retake' color='tertiary'></RoundedButton>
+					<RoundedButton label='Confirm' onClick={handleClicked}></RoundedButton>
 				</DialogActions>
 			</Dialog>
 		</React.Fragment>

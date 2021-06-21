@@ -12,6 +12,17 @@ import { usePreview } from 'react-dnd-preview';
 import { DndProvider } from 'react-dnd';
 // import Hierarchy from './components/Hierarchy';
 import { TouchBackend } from 'react-dnd-touch-backend';
+
+// or with ES6 modulesBinaryBitmap(new HybridBinarizer
+import {
+	MultiFormatReader,
+	BarcodeFormat,
+	DecodeHintType,
+	RGBLuminanceSource,
+	BinaryBitmap,
+	HybridBinarizer,
+} from '@zxing/library';
+
 const ItemTypes = {
 	BOUNDARY: 'boundry',
 };
@@ -23,6 +34,7 @@ const MediaStream = () => {
 	const container = React.useRef();
 
 	const imageRef = React.useRef();
+	const test = React.useRef();
 	const bboxWrapper = React.useRef();
 	const canvasRef = React.useRef();
 	const imageCanvasRef = React.useRef();
@@ -91,7 +103,7 @@ const MediaStream = () => {
 		const video_height = ms.height;
 		let to_width = videoWrapper.current.offsetWidth;
 		let to_height = videoWrapper.current.offsetHeight;
-		if(to_width > to_height) {
+		if (to_width > to_height) {
 			to_height = Math.floor((to_width * video_height) / video_width);
 		} else {
 			to_width = Math.floor((to_height * video_width) / video_height);
@@ -100,10 +112,10 @@ const MediaStream = () => {
 		const scaleRatioX = to_width / video_width;
 		let to_x = 0;
 		let to_y = 0;
-		if(to_width > document.documentElement.clientWidth) {
-			to_x = -(to_width - document.documentElement.clientWidth) / 2
+		if (to_width > document.documentElement.clientWidth) {
+			to_x = -(to_width - document.documentElement.clientWidth) / 2;
 		}
-		// if(to_width > to_height) { 
+		// if(to_width > to_height) {
 		// 	if (video_width > to_width) {
 		// 		to_x = -Math.ceil(scaleRatioX * 100);
 		// 		to_y = -Math.ceil(scaleRatioY * 100);
@@ -120,10 +132,33 @@ const MediaStream = () => {
 		// 		to_y = -Math.ceil((video_height / to_height) * 100);
 		// 	}
 		// }
-		
-		console.log(video_width, video_height, to_width, to_height, to_x, to_y)
-		return [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY]
 
+		console.log(video_width, video_height, to_width, to_height, to_x, to_y);
+		return [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY];
+	};
+
+	const readBarcode = (to_width, to_height) => {
+		try {
+			const hints = new Map();
+			const formats = [BarcodeFormat.PDF_417, BarcodeFormat.DATA_MATRIX /*, ...*/];
+
+			hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
+
+			const reader = new MultiFormatReader();
+
+			reader.setHints(hints);
+			const ctx = imageCanvasRef.current.getContext('2d');
+			const ctxt = test.current.getContext('2d');
+			ctx.drawImage(videoRef.current, 0, 0);
+			const imgByteArray = ctx.getImageData(0, 0, 1107, 600);
+			ctxt.putImageData(imgByteArray,0,0)
+			const luminanceSource = new RGBLuminanceSource(imgByteArray, to_width, to_height);
+			const binaryBitmap = new BinaryBitmap(new HybridBinarizer(luminanceSource));
+
+			reader.decode(binaryBitmap);
+		} catch (e) {
+			console.log("BarCodeScan", e);
+		}
 	}
 	const renderMedia = React.useCallback(async () => {
 		const media = await getMedia();
@@ -134,26 +169,31 @@ const MediaStream = () => {
 				videoRef.src = window.URL.createObjectURL(media.stream);
 			}
 			setMediaSettings(media.settings);
-			const [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY] = getTargetDimensions(media.settings);
+			const [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY] =
+				getTargetDimensions(media.settings);
 
 			videoRef.current.width = video_width;
 			videoRef.current.height = video_height;
 			imageRef.current.width = video_width;
 			imageRef.current.height = video_height;
-			if(to_width < document.documentElement.clientWidth) { 
+			if (to_width < document.documentElement.clientWidth) {
 				videoRef.current.style.transform = `translate(${-videoRef.current.offsetLeft}px, ${-videoRef.current
 					.offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
 			} else {
-				console.log(`translate(${-to_x}px, ${-to_y}px) scale(${scaleRatioX}, ${scaleRatioY})`)
+				console.log(`translate(${-to_x}px, ${-to_y}px) scale(${scaleRatioX}, ${scaleRatioY})`);
 				videoRef.current.style.transform = `translate(${to_x}px, ${-videoRef.current
 					.offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
 			}
-			
+
 			videoRef.current.style.transformOrigin = 'top left';
 			imageCanvasRef.current.width = video_width; //media.settings.width; //window.innerWidth;
 			imageCanvasRef.current.height = video_height; //media.settings.height; //window.innerHeight;
 			imageCanvasRef.current.style.width = `${to_width}px`;
 			imageCanvasRef.current.style.height = `${to_height}px`;
+			test.current.width = video_width; //media.settings.width; //window.innerWidth;
+			test.current.height = video_height; //media.settings.height; //window.innerHeight;
+			test.current.style.width = `${to_width}px`;
+			test.current.style.height = `${to_height}px`;
 			const newDebugData = {
 				video: `${video_width} x ${video_height} (${getReso(video_width, video_height)})`,
 				scale: `${scaleRatioX} x ${scaleRatioY}`,
@@ -161,6 +201,7 @@ const MediaStream = () => {
 				target: `${to_width} x ${to_height}`,
 				targetXY: `${to_x} x ${to_y}`,
 			};
+			setInterval(() => readBarcode(to_width, to_height), 1000)
 			setDebugData(newDebugData);
 		}
 	}, [videoRef, videoWrapper, canvasRef, imageCanvasRef]);
@@ -172,7 +213,8 @@ const MediaStream = () => {
 	}, [videoRef, videoWrapper, canvasRef, imageCanvasRef]);
 
 	const captureImage = () => {
-		const [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY] = getTargetDimensions(mediaSettings);
+		const [video_width, video_height, to_width, to_height, to_x, to_y, scaleRatioX, scaleRatioY] =
+			getTargetDimensions(mediaSettings);
 
 		const ctx = imageCanvasRef.current.getContext('2d');
 		setCapturing(true);
@@ -305,6 +347,7 @@ const MediaStream = () => {
 			<div>
 				<canvas ref={canvasRef} style={{ border: 'solid 2px red', display: 'none' }}></canvas>
 				<canvas ref={imageCanvasRef} style={{ border: 'solid 2px red', display: 'none' }}></canvas>
+				<canvas ref={test} style={{ border: 'solid 2px red',position: 'absolute', bottom: '10px',zIndex: '1000'}}></canvas>
 			</div>
 			<a id='downloadAnchor' href='http://chetandr.github.com' ref={downloadAnchor} style={{ display: 'none' }}>
 				image
