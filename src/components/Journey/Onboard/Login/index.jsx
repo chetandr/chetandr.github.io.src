@@ -10,59 +10,89 @@ import Logo from '../../../Logos';
 import Typography from '@material-ui/core/Typography';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormGroup from '@material-ui/core/FormGroup';
-import RoundedButton from '../../../RoundedButton';
 import Car from '../../../Car';
 import Checkbox from '@material-ui/core/Checkbox';
-import SwipeButton from 'react-swipezor';
 import ReactSwipeButton from 'react-swipe-button';
 import CompanySettings$ from '../../../../APIConfig/CompanySettings';
+import AssessmentId$ from '../../../../APIConfig/AssessmentId';
+import UpdateAssessmentType$ from '../../../../APIConfig/UpdateAssessmentType';
+import Alert from '@material-ui/lab/Alert';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Login = (props) => {
+	const { t } = useTranslation();
 	const [checked, setChecked] = React.useState(false);
-	const [companyData, setCompnayData] = React.useState(null);
+	const [companyData, setCompanyData] = React.useState(null);
+	const [fieldOne, setFieldOne] = React.useState(null);
+	const [errors, setErrors] = React.useState([]);
+	const swipeButton = React.useRef();
 	const [openTermsAndConditions, setOpenTermsAndConditions] = React.useState(false);
 	const handleChange = () => {
 		setChecked(!checked);
 	};
-
-	// Load Company Details
+	// Load Company Details for the component to get data
 	useEffect(() => {
 		try {
-			// CompanySettings$(9994).subscribe((response) => setCompnayData(response.data));
+			CompanySettings$(9994).subscribe((response) => setCompanyData(response.data));
 		} catch (e) {
 			console.log(e);
 		}
 	}, []);
 
+	// When the Login Button is swiped take this action
 	const handleClicked = () => {
-		console.log('next Clicked', props.nextAction);
-		props.nextAction();
+		const errors = [];
+		// If the contact number is not set, Register an error
+		if (fieldOne === null) {
+			errors.push(t("Enter the Contact number"))
+		}
+
+		// If the terms and conditions are not checked, Register an error
+		if (!checked) {
+			errors.push(t("Agree to the terms and coditions by selecting the checkbox below"))
+		}
+
+
+
+
+		if (!errors.length) {
+			// If there are no errors
+			// Fetch the assessment ID and execute the Update the assessment id with the default type as pre inspection.
+			AssessmentId$(9994, fieldOne).subscribe((response) => UpdateAssessmentType$(9994, response.data.assessment_id, "b04d837c-3539-430e-b9ae-159dcbe1e96b").subscribe(props.nextAction(response.data)));
+		} else {
+			// Set the errors object
+			setErrors(errors);
+
+			// reset the swipe button;
+			swipeButton.current.reset();
+		}
+
 	};
-	console.log('PROPS', props.nextAction);
 	return (
 		<React.Fragment>
 			{companyData !== null && <Logo imageURL={companyData?.logo} />}
 
 			<Box pt={2} px={4}>
 				<Typography style={{ textAlign: 'center' }}>
-					Welcome to The Unlimited. Let us begin assessing your vehicle from the comfort of your home.
+					{t('welcome', { company_name: companyData !== null ? companyData.company_name : "our Shop" })}
 				</Typography>
 			</Box>
 			<Box pt={2} px={4}>
 				<TextField
 					id='standard-full-width'
-					placeholder='Enter Your Contact Number'
+					placeholder={t('Enter Your Contact Number')}
 					fullWidth
 					margin='normal'
 					variant='outlined'
+					onChange={(e) => setFieldOne(e.target.value)}
 					InputProps={{
 						style: { borderRadius: '28px' },
 					}}
 				/>
 			</Box>
 			<Box pt={4} px={4}>
-				<ReactSwipeButton text='Swipe to Login' color='#EDA03A' onSuccess={handleClicked} />
+				<ReactSwipeButton text={t('Swipe to Login')} color='#EDA03A' onSuccess={handleClicked} ref={swipeButton} />
 			</Box>
 			<Box p={8}>
 				<Car />
@@ -78,41 +108,54 @@ const Login = (props) => {
 							style={{ float: 'left' }}
 						/>
 						<Typography variant='caption'>
-							I have read, understood and agreed with your{' '}
+							{t('I have read, understood and agreed with your')}{' '}
 							<Typography
 								color='primary'
 								style={{ cursor: 'pointer', display: 'inline-block' }}
 								onClick={() => setOpenTermsAndConditions(true)}
 							>
 								{' '}
-								Terms and Conditions
+								{t('Terms and Conditions')}
 							</Typography>
 						</Typography>
 					</FormLabel>
 				</FormGroup>
 			</Box>
-			{/* {companyData !== null && ( */}
-			<Dialog open={openTermsAndConditions} maxWidth='lg' style={{ width: '80vw', height: '80vw' }}>
-				<DialogTitle>Terms and Conditions</DialogTitle>
-				<DialogContent>
-					<iframe
-						src={'https://usabilla.com/terms/'}
-						style={{ width: '60vw', height: '60vw', border: 'none' }}
-					></iframe>
-				</DialogContent>
-				<DialogActions>
-					<Button variant='contained' color='primary' onClick={() => setOpenTermsAndConditions(false)}>
-						Close
-					</Button>
-				</DialogActions>
-			</Dialog>
-			{/* )} */}
+			{companyData !== null && (
+				<Dialog open={openTermsAndConditions} maxWidth='lg' style={{ width: '80vw', height: '60vw' }}>
+					<DialogTitle>{t('Terms and Conditions')}</DialogTitle>
+					<DialogContent style={{ overflow: "hidden" }}>
+						<iframe
+							src={companyData.terms_and_conditions_url}
+							style={{ width: '60vw', height: '45vw', border: 'none' }}
+						></iframe>
+					</DialogContent>
+					<DialogActions>
+						<Button variant='contained' color='primary' onClick={() => setOpenTermsAndConditions(false)}>
+							{t('Close')}
+						</Button>
+					</DialogActions>
+				</Dialog>
+			)}
+			{errors.length && (
+				<Dialog open={errors.length} maxWidth='lg' style={{ width: '80vw', height: '60vw' }}>
+					<DialogTitle>Error!!</DialogTitle>
+					<DialogContent style={{ overflow: "hidden" }}>
+						{errors.map(error => <Box p={1}><Alert severity="error">{error}</Alert></Box>)}
+					</DialogContent>
+					<DialogActions>
+						<Button variant='contained' color='primary' onClick={() => setErrors([])}>
+							Ok
+						</Button>
+					</DialogActions>
+				</Dialog>
+			)}
 		</React.Fragment>
 	);
 };
 
 Login.defaultProps = {
-	nextAction: () => {},
-	prevAction: () => {},
+	nextAction: () => { },
+	prevAction: () => { },
 };
 export default Login;

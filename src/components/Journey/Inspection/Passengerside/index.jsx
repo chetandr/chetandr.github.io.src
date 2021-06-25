@@ -35,11 +35,11 @@ const License = (props) => {
 				<Typography>Position passenger side of the car within the outlines and take a photo.</Typography>
 			</Box>
 
-			<MediaStreamWithDnD />
+			<MediaStreamWithDnD nextAction={handleClicked}/>
 			{/* <Box style={{ postion: 'absolute', top: 0, left: 0 }}>
 				<OverlayWindow windowSize={24} />
 			</Box> */}
-			<CaptureButton onClick={handleClicked}/>
+			{/* <CaptureButton onClick={handleClicked}/> */}
 			<Box
 				style={{
 					display: 'block',
