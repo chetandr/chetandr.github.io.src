@@ -13,9 +13,9 @@ import PhotoCameraRounded from '@material-ui/icons/PhotoCameraRounded';
 import CaptureIcon from '../../../CaptureIcon';
 import CaptureButton from '../../../CaptureButton';
 const License = (props) => {
-	const handleClicked = () => {
+	const handleClicked = (data) => {
 		console.log('next Clicked', props.nextAction);
-		props.nextAction();
+		props.nextAction(data);
 	};
 
 	return (
@@ -35,7 +35,7 @@ const License = (props) => {
 				<Typography>Position front of the car within the outlines and take a photo.</Typography>
 			</Box>
 
-			<MediaStreamWithDnD nextAction={handleClicked}/>
+			<MediaStreamWithDnD nextAction={handleClicked} side="FRONT_SIDE"/>
 			{/* <Box style={{ postion: 'absolute', top: 0, left: 0 }}>
 				<OverlayWindow windowSize={24} />
 			</Box> */}

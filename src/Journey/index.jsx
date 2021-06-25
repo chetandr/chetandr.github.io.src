@@ -17,7 +17,7 @@ import { useParams, useHistory } from "react-router-dom";
 // import useFullscreen from '../utils/useFullScreen';
 import CarDataContext from "../CarDataContext";
 import ErrorBoundary from "../components/ErrorBoundary";
-import { S3Client } from "@aws-sdk/client-s3";
+import geoLocation from "../utils/geoLocation";
 
 const getCurrentAndNext = (type, step) => {
   // findIndex(mockJourney, (mj:StepData) => mj.type === type && mj.step == step);
@@ -86,6 +86,14 @@ const Journey = () => {
   const history = useHistory();
 
   const [prevIndex, currentIndex, nextIndex] = getCurrentAndNext(type, step);
+  if (mockJourney[currentIndex].step === "license") {
+    if (!carData.geoLocation) {
+      geoLocation().then((geoData) => {
+        setCarData({ ...carData, geoLocation: geoData });
+        sessionStorage.setItem("geoLocation", JSON.stringify(geoData));
+      });
+    }
+  }
   const currentAction = mockJourney[currentIndex];
   if (type && step) {
     return (

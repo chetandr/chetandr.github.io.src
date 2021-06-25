@@ -9,7 +9,7 @@ import { Dialog, DialogActions } from '@material-ui/core';
 import styled from '@material-ui/core/styles/styled';
 import { BrowserMultiFormatReader, NotFoundException } from "@zxing/library";
 import { useEffect } from 'react';
-
+// import geoLocation from "../../../../utils/geoLocation";
 const Divider = styled(Box)({
 	height: '1px',
 	backgroundColor: '#EBEBEB',

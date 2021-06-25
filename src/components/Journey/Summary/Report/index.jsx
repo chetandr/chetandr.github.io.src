@@ -13,6 +13,7 @@ import { DialogTitle } from "@material-ui/core";
 import { Dialog, DialogActions, DialogContent } from "@material-ui/core";
 import CarDataContext from "../../../../CarDataContext";
 import { useContext } from "react";
+import FinalAsessmentSubmission$ from "../../../../APIConfig/FinalAsessmentSubmission";
 
 const StyledPaper = styled(Paper)({
   margin: "16px 8px 16px 8px",
@@ -27,10 +28,31 @@ const StyledCard = styled(Card)({
 const Report = () => {
   let carData = useContext(CarDataContext);
   if (!Object.keys(carData).length) {
-    carData = { license: JSON.parse(sessionStorage.getItem("license")) };
+    carData = {
+      license: JSON.parse(sessionStorage.getItem("license")),
+      login: JSON.parse(sessionStorage.getItem("login")),
+      front: JSON.parse(sessionStorage.getItem("front")),
+      driverside: JSON.parse(sessionStorage.getItem("driverside")),
+      passengerside: JSON.parse(sessionStorage.getItem("passengerside")),
+      rear: JSON.parse(sessionStorage.getItem("rear")),
+      geoLocation: JSON.parse(sessionStorage.getItem("geoLocation")),
+    };
   }
+  
   console.log("carData", carData);
   const [ackOpen, setAckOpen] = React.useState(false);
+
+  const onSubmit = () => {
+    // otp, assessmentId, deviceId, assessmentLocation, preferredLocation
+    FinalAsessmentSubmission$(
+      9994,
+      carData.login.assessment_id,
+      "b04d837c-3539-430e-b9ae-159dcbe1e96b",
+      carData.geoLocation,
+      carData.geoLocation
+    ).subscribe((response) => setAckOpen(true))
+    
+  }
   return (
     <Box>
       <Card>
@@ -56,76 +78,53 @@ const Report = () => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Box p={2}>
-                <Typography variant="body2">Vin Number</Typography>
-                <Typography variant="h6">{carData.license[12]}</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-			<Box p={2}>
                 <Typography variant="body2">License Plate</Typography>
                 <Typography variant="h6">{carData.license[6]}</Typography>
               </Box>
             </Grid>
-          </Grid>
-          <Grid container spacing={2}>
             <Grid item xs={6}>
-			<Box p={2}>
-                <Typography variant="body2">Request Date</Typography>
-                <Typography variant="h6">{new Intl.DateTimeFormat('en-ZA').format(new Date())}</Typography>
+              <Box p={2}>
+                <Typography variant="body2">Vin Number</Typography>
+                <Typography variant="h6">{carData.license[12]}</Typography>
               </Box>
             </Grid>
-            <Grid item xs={6}>
-              
-            </Grid>
           </Grid>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-             
+              <Box p={2}>
+                <Typography variant="body2">Request Date</Typography>
+                <Typography variant="h6">
+                  {new Intl.DateTimeFormat("en-ZA").format(new Date())}
+                </Typography>
+              </Box>
             </Grid>
+            <Grid item xs={6}></Grid>
+          </Grid>
+          <Grid container spacing={2}>
+            <Grid item xs={6}></Grid>
           </Grid>
         </CardContent>
       </Card>
       <StyledCard>
         <CardHeader title="Front Side"></CardHeader>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <StyledPaper>
               <CardMedia
                 component="img"
                 alt="Contemplative Reptile"
                 height="140"
-                image="/images/dummy/front.jpg"
+                image={carData.front.thumbnail}
                 title="Front Side"
               />
               <CardContent>
                 <Box mb={3}>
                   <Typography variant="body2">Damaged Area</Typography>
-                  <Typography variant="h6">Driver Side Headlight</Typography>
+                  <Typography variant="h6">-NA-</Typography>
                 </Box>
                 <Box>
                   <Typography variant="body2">Damaged type</Typography>
-                  <Typography variant="h6">Dented & Scratched</Typography>
-                </Box>
-              </CardContent>
-            </StyledPaper>
-          </Grid>
-          <Grid item xs={6}>
-            <StyledPaper>
-              <CardMedia
-                component="img"
-                alt="Contemplative Reptile"
-                height="140"
-                image="/images/dummy/front.jpg"
-                title="Front Side"
-              />
-              <CardContent>
-                <Box mb={3}>
-                  <Typography variant="body2">Damaged Area</Typography>
-                  <Typography variant="h6">Driver Side Headlight</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2">Damaged type</Typography>
-                  <Typography variant="h6">Dented & Scratched</Typography>
+                  <Typography variant="h6">-NA-</Typography>
                 </Box>
               </CardContent>
             </StyledPaper>
@@ -135,44 +134,23 @@ const Report = () => {
       <StyledCard>
         <CardHeader title="Driver Side"></CardHeader>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <StyledPaper>
               <CardMedia
                 component="img"
                 alt="Contemplative Reptile"
                 height="140"
-                image="/images/dummy/front.jpg"
+                image={carData.driverside.thumbnail}
                 title="Front Side"
               />
               <CardContent>
                 <Box mb={3}>
                   <Typography variant="body2">Damaged Area</Typography>
-                  <Typography variant="h6">Driver Side Headlight</Typography>
+                  <Typography variant="h6">-NA-</Typography>
                 </Box>
                 <Box>
                   <Typography variant="body2">Damaged type</Typography>
-                  <Typography variant="h6">Dented & Scratched</Typography>
-                </Box>
-              </CardContent>
-            </StyledPaper>
-          </Grid>
-          <Grid item xs={6}>
-            <StyledPaper>
-              <CardMedia
-                component="img"
-                alt="Contemplative Reptile"
-                height="140"
-                image="/images/dummy/front.jpg"
-                title="Front Side"
-              />
-              <CardContent>
-                <Box mb={3}>
-                  <Typography variant="body2">Damaged Area</Typography>
-                  <Typography variant="h6">Driver Side Headlight</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2">Damaged type</Typography>
-                  <Typography variant="h6">Dented & Scratched</Typography>
+                  <Typography variant="h6">-NA-</Typography>
                 </Box>
               </CardContent>
             </StyledPaper>
@@ -182,44 +160,23 @@ const Report = () => {
       <StyledCard>
         <CardHeader title="Passenger Side"></CardHeader>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <StyledPaper>
               <CardMedia
                 component="img"
                 alt="Contemplative Reptile"
                 height="140"
-                image="/images/dummy/front.jpg"
+                image={carData.passengerside.thumbnail}
                 title="Front Side"
               />
               <CardContent>
                 <Box mb={3}>
                   <Typography variant="body2">Damaged Area</Typography>
-                  <Typography variant="h6">Driver Side Headlight</Typography>
+                  <Typography variant="h6">-NA-</Typography>
                 </Box>
                 <Box>
                   <Typography variant="body2">Damaged type</Typography>
-                  <Typography variant="h6">Dented & Scratched</Typography>
-                </Box>
-              </CardContent>
-            </StyledPaper>
-          </Grid>
-          <Grid item xs={6}>
-            <StyledPaper>
-              <CardMedia
-                component="img"
-                alt="Contemplative Reptile"
-                height="140"
-                image="/images/dummy/front.jpg"
-                title="Front Side"
-              />
-              <CardContent>
-                <Box mb={3}>
-                  <Typography variant="body2">Damaged Area</Typography>
-                  <Typography variant="h6">Driver Side Headlight</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2">Damaged type</Typography>
-                  <Typography variant="h6">Dented & Scratched</Typography>
+                  <Typography variant="h6">-NA-</Typography>
                 </Box>
               </CardContent>
             </StyledPaper>
@@ -229,44 +186,23 @@ const Report = () => {
       <StyledCard>
         <CardHeader title="Rear Side"></CardHeader>
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <StyledPaper>
               <CardMedia
                 component="img"
                 alt="Contemplative Reptile"
                 height="140"
-                image="/images/dummy/front.jpg"
+                image={carData.rear.thumbnail}
                 title="Front Side"
               />
               <CardContent>
                 <Box mb={3}>
                   <Typography variant="body2">Damaged Area</Typography>
-                  <Typography variant="h6">Driver Side Headlight</Typography>
+                  <Typography variant="h6">-NA-</Typography>
                 </Box>
                 <Box>
                   <Typography variant="body2">Damaged type</Typography>
-                  <Typography variant="h6">Dented & Scratched</Typography>
-                </Box>
-              </CardContent>
-            </StyledPaper>
-          </Grid>
-          <Grid item xs={6}>
-            <StyledPaper>
-              <CardMedia
-                component="img"
-                alt="Contemplative Reptile"
-                height="140"
-                image="/images/dummy/front.jpg"
-                title="Front Side"
-              />
-              <CardContent>
-                <Box mb={3}>
-                  <Typography variant="body2">Damaged Area</Typography>
-                  <Typography variant="h6">Driver Side Headlight</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2">Damaged type</Typography>
-                  <Typography variant="h6">Dented & Scratched</Typography>
+                  <Typography variant="h6">-NA-</Typography>
                 </Box>
               </CardContent>
             </StyledPaper>
@@ -277,14 +213,14 @@ const Report = () => {
         <RoundedButton
           label="Submit"
           fullWidth={false}
-          onClick={() => setAckOpen(true)}
+          onClick={onSubmit}
         />
       </Box>
       <Dialog open={ackOpen} size="md">
         <DialogTitle style={{ textAlign: "center" }}>Thank you !</DialogTitle>
         <DialogContent>
-          <Typography>Your vehicle assessment is now complete!</Typography>
-          <Typography>We will be in touch with you soon.</Typography>
+          <Typography style={{textAlign: "center"}}>Your vehicle assessment is now complete!</Typography>
+          <Typography style={{textAlign: "center"}}>We will be in touch with you soon.</Typography>
         </DialogContent>
         <DialogActions style={{ justifyContent: "center" }}>
           <RoundedButton

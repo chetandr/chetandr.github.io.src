@@ -8,6 +8,7 @@ import { usePreview } from "react-dnd-preview";
 import CaptureButton from "../CaptureButton";
 import GeneratePresignedUrl$ from "../../APIConfig/GeneratePresignedUrl";
 import UploadImageToS3$ from "../../APIConfig/UploadImageToS3";
+import UpdateImageFileMetaDataArea$ from "../../APIConfig/UpdateImageFileMetaDataArea";
 import CarDataContext from "../../CarDataContext";
 
 import { S3Client } from "@aws-sdk/client-s3";
@@ -55,7 +56,10 @@ const MediaStream = (props) => {
   });
   let carData = React.useContext(CarDataContext);
   if (Object.keys(carData).length === 0 && carData.constructor === Object) {
-    carData = { login: JSON.parse(sessionStorage.getItem("login")) };
+    carData = {
+      login: JSON.parse(sessionStorage.getItem("login")),
+      geoLocation: JSON.parse(sessionStorage.getItem("geoLocation")),
+    };
   }
   console.log("carData", carData);
   const [{ isDragging }, bbox] = useDrag(() => ({
@@ -237,9 +241,23 @@ const MediaStream = (props) => {
     // ctx.scale(scaleRatioX, scaleRatioY);
     ctx.drawImage(videoRef.current, 0, 0);
 
-    const url = imageCanvasRef.current.toDataURL("image/png");
+    // const url = imageCanvasRef.current.toDataURL("image/png");
+    // const imgData =ctx.getImageData(0,0,to_width, to_height);
+    const thumbWidth = 480;
+    const ctxt = thumbnail.current.getContext("2d");
+    thumbnail.current.width = thumbWidth; //imageCanvasRef.current.width;
+    thumbnail.current.height = thumbnail.current.width / 1.7;
+    ctxt.scale(
+      thumbWidth / imageCanvasRef.current.width,
+      thumbWidth / 1.7 / imageCanvasRef.current.height
+    );
+    ctxt.drawImage(videoRef.current, 2, 0);
+    const thumbnailUrl = thumbnail.current.toDataURL("image/png");
+    // downloadAnchor.current.href = thumbnailUrl;
+    // downloadAnchor.current.download = 'MyPhoto.png';
+    // downloadAnchor.current.click();
     imageCanvasRef.current.toBlob(async (blob) => {
-      imageRef.current.style.display = "block";
+      // imageRef.current.style.display = "block";
       const [md5Data] = await getMD5(blob);
       console.log("BLOB", blob);
       GeneratePresignedUrl$(
@@ -256,11 +274,30 @@ const MediaStream = (props) => {
             response.data.uploadUrl,
             blob,
             md5Data,
-            "image/png",
+            "image/png"
             // params
           ).subscribe((uploadResponse) => {
             if (uploadResponse.status === 200 && props.nextAction) {
-              props.nextAction(response.data);
+              //  otp,assessmentId,deviceId,imageRequestId, gps, originalImageResolution,tags,uploadDone
+              UpdateImageFileMetaDataArea$(
+                9994,
+                carData.login.assessment_id,
+                "b04d837c-3539-430e-b9ae-159dcbe1e96b",
+                response.data.id,
+                carData.geoLocation,
+                {
+                  height: video_width,
+                  width: video_height,
+                },
+                [
+                  {
+                    tag_type: "AREA",
+                    value: props.side,
+                  },
+                ],
+                true
+              );
+              props.nextAction({ ...response.data, thumbnail: thumbnailUrl });
             }
           });
         } catch (e) {
@@ -385,19 +422,19 @@ const MediaStream = (props) => {
         ></img>
       </div>
 
-      <div>
+      <div style={{ position: "absolute" }}>
         <canvas
           ref={canvasRef}
           style={{ border: "solid 2px red", display: "none" }}
         ></canvas>
         <canvas
           ref={imageCanvasRef}
-          style={{ border: "solid 2px red", display: "none" }}
+          style={{ border: "solid 2px green", display: "none" }}
         ></canvas>
         <canvas
           ref={thumbnail}
           style={{
-            border: "solid 2px red",
+            border: "solid 2px orange",
             position: "absolute",
             bottom: "10px",
             zIndex: "1000",
@@ -448,5 +485,6 @@ const MediaStream = (props) => {
 
 MediaStream.defaultProps = {
   nextAction: () => {},
+  side:""
 };
 export default MediaStream;

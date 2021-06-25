@@ -1,18 +1,22 @@
-import { DndProvider } from 'react-dnd';
-import MediaStream from '../MediaStream';
-import { TouchBackend } from 'react-dnd-touch-backend';
+import { DndProvider } from "react-dnd";
+import MediaStream from "../MediaStream";
+import { TouchBackend } from "react-dnd-touch-backend";
+import { LinearProgress } from "@material-ui/core";
 function MediaStreamWithDnD(props) {
-	return (
-		
-		<DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
-								<MediaStream nextAction={props.nextAction}/>
-							</DndProvider>
-						
-	);
+  if (props.side) {
+    return (
+      <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
+        <MediaStream nextAction={props.nextAction} side={props.side} />
+      </DndProvider>
+    );
+  } else {
+    return <LinearProgress />;
+  }
 }
 
 MediaStreamWithDnD.defaultProps = {
-	nextAction: () => {},
-}
+  nextAction: () => {},
+  side: "",
+};
 
 export default MediaStreamWithDnD;
