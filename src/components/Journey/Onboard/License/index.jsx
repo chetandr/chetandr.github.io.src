@@ -126,17 +126,9 @@ const License = (props) => {
                         height: codeReader.captureCanvas.width,
                         width: codeReader.captureCanvas.width,
                       },
-                      [
-                        {
-                          tag_type: "AREA",
-                          value: props.side,
-                        },
-                      ],
+                      tags,
                       true
                     );
-                    props.nextAction({
-                      ...response.data,
-                    });
                   }
                 });
               } catch (e) {
