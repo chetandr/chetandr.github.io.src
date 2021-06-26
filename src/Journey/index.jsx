@@ -25,7 +25,7 @@ import Backdrop from "@material-ui/core/Backdrop";
 const useStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
-    color:"#EDA03A",
+    color: "#EDA03A",
   },
 }));
 
@@ -106,7 +106,12 @@ const Journey = () => {
   const Loader = () => (
     <Box>
       <Backdrop className={classes.backdrop} open={waiting}>
-        <CircularProgress color="inherit" thickness={8} />
+        <CircularProgress color="inherit" thickness={4} size={60} />
+        <img
+          src="/carScan_icon.png"
+          width="40px"
+          style={{ marginLeft: "-50px" }}
+        />
       </Backdrop>
     </Box>
   );
