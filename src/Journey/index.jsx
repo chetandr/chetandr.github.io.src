@@ -18,6 +18,16 @@ import { useParams, useHistory } from "react-router-dom";
 import CarDataContext from "../CarDataContext";
 import ErrorBoundary from "../components/ErrorBoundary";
 import geoLocation from "../utils/geoLocation";
+import { makeStyles } from "@material-ui/core/styles";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Backdrop from "@material-ui/core/Backdrop";
+
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color:"#EDA03A",
+  },
+}));
 
 const getCurrentAndNext = (type, step) => {
   // findIndex(mockJourney, (mj:StepData) => mj.type === type && mj.step == step);
@@ -34,8 +44,11 @@ const getCurrentAndNext = (type, step) => {
 
 const Journey = () => {
   const container = React.useRef();
+  const classes = useStyles();
   const [carData, setCarData] = React.useState({});
   let { type, step } = useParams();
+  const [waiting, setWaiting] = React.useState(false);
+
   // let setIsFullscreen, exitFullscreen;
 
   // Method called when the next action is to be laoded
@@ -51,7 +64,12 @@ const Journey = () => {
     // } else {
     // 	exitFullscreen();
     // }
+    setWaiting(false);
     history.push(href);
+  };
+
+  const toggleWaiting = () => {
+    setWaiting(true);
   };
 
   // Get the Component to be rendered currently
@@ -63,6 +81,7 @@ const Journey = () => {
         JourneyModule[startCase(type)][startCase(step)].default,
         {
           nextAction,
+          toggleWaiting,
         }
       );
       Component.push(newComponent);
@@ -84,6 +103,13 @@ const Journey = () => {
   // 	setIsFullscreen = undefined;
   // }
   const history = useHistory();
+  const Loader = () => (
+    <Box>
+      <Backdrop className={classes.backdrop} open={waiting}>
+        <CircularProgress color="inherit" thickness={8} />
+      </Backdrop>
+    </Box>
+  );
 
   const [prevIndex, currentIndex, nextIndex] = getCurrentAndNext(type, step);
   if (mockJourney[currentIndex].step === "license") {
@@ -104,6 +130,7 @@ const Journey = () => {
             {currentAction.container ? (
               <Container>
                 <ErrorBoundary>
+                  {Loader()}
                   {type && step && getComposed({ type, step })}
                 </ErrorBoundary>
               </Container>
@@ -111,6 +138,7 @@ const Journey = () => {
               type &&
               step && (
                 <ErrorBoundary>
+                  {Loader()}
                   <Box ref={container}>
                     {getComposed({
                       type,

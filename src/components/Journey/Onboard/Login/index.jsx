@@ -20,13 +20,24 @@ import Alert from "@material-ui/lab/Alert";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: theme.palette.primary.main,
+  },
+}));
+
 const Login = (props) => {
   const { t } = useTranslation();
+  const classes = useStyles();
   const [checked, setChecked] = React.useState(false);
   const [companyData, setCompanyData] = React.useState(null);
   const [fieldOne, setFieldOne] = React.useState(null);
   const [errors, setErrors] = React.useState([]);
   const swipeButton = React.useRef();
+  const [waiting, setWaiting] = React.useState(false);
   const [openTermsAndConditions, setOpenTermsAndConditions] =
     React.useState(false);
   const handleChange = () => {
@@ -61,12 +72,20 @@ const Login = (props) => {
     if (!errors.length) {
       // If there are no errors
       // Fetch the assessment ID and execute the Update the assessment id with the default type as pre inspection.
+      if(props.toggleWaiting) {
+        props.toggleWaiting()
+      }
       AssessmentId$(9994, fieldOne).subscribe((response) =>
         UpdateAssessmentType$(
           9994,
           response.data.assessment_id,
           "b04d837c-3539-430e-b9ae-159dcbe1e96b"
-        ).subscribe(props.nextAction(response.data))
+        ).subscribe(() => {
+          if(props.toggleWaiting) {
+            props.toggleWaiting()
+          }
+          props.nextAction(response.data);
+        })
       );
     } else {
       // Set the errors object
@@ -78,6 +97,7 @@ const Login = (props) => {
   };
   return (
     <React.Fragment>
+      
       {companyData !== null && <Logo imageURL={companyData?.logo} />}
 
       <Box pt={2} px={4}>
@@ -115,7 +135,7 @@ const Login = (props) => {
               {t("I have read, understood and agreed with your")}{" "}
               <Typography
                 color="primary"
-				variant="caption"
+                variant="caption"
                 style={{ cursor: "pointer", display: "inline-block" }}
                 onClick={() => setOpenTermsAndConditions(true)}
               >
@@ -141,13 +161,15 @@ const Login = (props) => {
       {companyData !== null && (
         <Dialog
           open={openTermsAndConditions}
-        //   maxWidth="lg"
-		fullScreen
-		fullWidth
-        //   style={{ width: "90vw", height: "90vh" }}
+          //   maxWidth="lg"
+          fullScreen
+          fullWidth
+          //   style={{ width: "90vw", height: "90vh" }}
         >
           <DialogTitle>{t("Terms and Conditions")}</DialogTitle>
-          <DialogContent style={{ overflow: "hidden", padding: 0, paddingLeft: 16}}>
+          <DialogContent
+            style={{ overflow: "hidden", padding: 0, paddingLeft: 16 }}
+          >
             <iframe
               src={companyData.terms_and_conditions_url}
               style={{ width: "100%", height: "100%", border: "none" }}

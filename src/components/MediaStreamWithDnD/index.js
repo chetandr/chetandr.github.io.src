@@ -6,7 +6,7 @@ function MediaStreamWithDnD(props) {
   if (props.side) {
     return (
       <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
-        <MediaStream nextAction={props.nextAction} side={props.side} />
+        <MediaStream nextAction={props.nextAction} side={props.side} toggleWaiting={props.toggleWaiting}/>
       </DndProvider>
     );
   } else {

@@ -85,6 +85,9 @@ const License = (props) => {
             // imageRef.current.style.display = "block";
             const [md5Data] = await getMD5(blob);
             console.log("BLOB", blob);
+            if(props.toggleWaiting) {
+              props.toggleWaiting()
+            }
             GeneratePresignedUrl$(
               9994,
               carData.login.assessment_id,

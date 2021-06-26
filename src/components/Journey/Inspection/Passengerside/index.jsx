@@ -35,7 +35,7 @@ const License = (props) => {
 				<Typography>Position passenger side of the car within the outlines and take a photo.</Typography>
 			</Box>
 
-			<MediaStreamWithDnD nextAction={handleClicked} side="PASSENGER_SIDE"/>
+			<MediaStreamWithDnD nextAction={handleClicked} side="PASSENGER_SIDE" toggleWaiting={props.toggleWaiting}/>
 			{/* <Box style={{ postion: 'absolute', top: 0, left: 0 }}>
 				<OverlayWindow windowSize={24} />
 			</Box> */}

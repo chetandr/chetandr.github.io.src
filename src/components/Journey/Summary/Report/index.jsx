@@ -25,7 +25,7 @@ const StyledCard = styled(Card)({
   margin: "8px",
   backgroundColor: "#F0F1F5",
 });
-const Report = () => {
+const Report = (props) => {
   let carData = useContext(CarDataContext);
   if (!Object.keys(carData).length) {
     carData = {
@@ -38,11 +38,14 @@ const Report = () => {
       geoLocation: JSON.parse(sessionStorage.getItem("geoLocation")),
     };
   }
-  
+
   console.log("carData", carData);
   const [ackOpen, setAckOpen] = React.useState(false);
 
   const onSubmit = () => {
+    if (props.toggleWaiting) {
+      props.toggleWaiting();
+    }
     // otp, assessmentId, deviceId, assessmentLocation, preferredLocation
     FinalAsessmentSubmission$(
       9994,
@@ -50,9 +53,8 @@ const Report = () => {
       "b04d837c-3539-430e-b9ae-159dcbe1e96b",
       carData.geoLocation,
       carData.geoLocation
-    ).subscribe((response) => setAckOpen(true))
-    
-  }
+    ).subscribe((response) => setAckOpen(true));
+  };
   return (
     <Box>
       <Card>
@@ -210,17 +212,17 @@ const Report = () => {
         </Grid>
       </StyledCard>
       <Box p={1} m={2} textAlign="right">
-        <RoundedButton
-          label="Submit"
-          fullWidth={false}
-          onClick={onSubmit}
-        />
+        <RoundedButton label="Submit" fullWidth={false} onClick={onSubmit} />
       </Box>
       <Dialog open={ackOpen} size="md">
         <DialogTitle style={{ textAlign: "center" }}>Thank you !</DialogTitle>
         <DialogContent>
-          <Typography style={{textAlign: "center"}}>Your vehicle assessment is now complete!</Typography>
-          <Typography style={{textAlign: "center"}}>We will be in touch with you soon.</Typography>
+          <Typography style={{ textAlign: "center" }}>
+            Your vehicle assessment is now complete!
+          </Typography>
+          <Typography style={{ textAlign: "center" }}>
+            We will be in touch with you soon.
+          </Typography>
         </DialogContent>
         <DialogActions style={{ justifyContent: "center" }}>
           <RoundedButton
