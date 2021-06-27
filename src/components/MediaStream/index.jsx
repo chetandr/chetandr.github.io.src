@@ -251,7 +251,7 @@ const MediaStream = (props) => {
     videoRef.current.pause();
     // videoRef.current.currentTime = 0;
     // ctx.scale(scaleRatioX, scaleRatioY);
-    ctx.drawImage(videoRef.current, 0, 0);
+    ctx.drawImage(videoRef.current, 2, 0);
 
     const url = imageCanvasRef.current.toDataURL("image/png");
     const imgData = ctx.getImageData(0, 0, toImgWidth, toImgHeight);
@@ -266,8 +266,8 @@ const MediaStream = (props) => {
     ctxt.drawImage(videoRef.current, 2, 0);
     const thumbnailUrl = thumbnail.current.toDataURL("image/png");
     downloadAnchor.current.href = thumbnailUrl;
-    downloadAnchor.current.download = 'MyPhoto.png';
-    downloadAnchor.current.click();
+    // downloadAnchor.current.download = 'MyPhoto.png';
+    // downloadAnchor.current.click();
     imageCanvasRef.current.toBlob(async (blob) => {
       // imageRef.current.style.display = "block";
       const [md5Data] = await getMD5(blob);
