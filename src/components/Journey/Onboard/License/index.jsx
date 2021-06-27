@@ -11,6 +11,7 @@ import GeneratePresignedUrl$ from "../../../../APIConfig/GeneratePresignedUrl";
 import UploadImageToS3$ from "../../../../APIConfig/UploadImageToS3";
 import UpdateImageFileMetaDataBarcode$ from "../../../../APIConfig/UpdateImageFileMetaDataBarcode";
 import CarDataContext from "../../../../CarDataContext";
+import { useTranslation } from "react-i18next";
 import {
   BrowserMultiFormatReader,
   NotFoundException,
@@ -25,6 +26,7 @@ const Divider = styled(Box)({
   backgroundColor: "#EBEBEB",
 });
 const License = (props) => {
+  const { t } = useTranslation();
   const [licenseData, setlicenseData] = React.useState([]);
   const codeReader = new BrowserMultiFormatReader();
   const result = React.useRef();
@@ -160,7 +162,7 @@ const License = (props) => {
         <OverlayMessageBox>
           <Box p={2}>
             <Box p={1}>
-              <Typography variant="body1">Generate Vehicle Details</Typography>
+              <Typography variant="body1">{t("Generate Vehicle Details")}</Typography>
             </Box>
             <Grid container>
               <Grid item xs={1}></Grid>
@@ -170,7 +172,7 @@ const License = (props) => {
                     color="secondary"
                     size="small"
                     fullWidth={false}
-                    label="License Disc"
+                    label={t("License Disc")}
                     // onClick={() => setDetailsOpen(true)}
                   />
                 </Box>
@@ -183,7 +185,7 @@ const License = (props) => {
                     color="secondary"
                     size="small"
                     fullWidth={false}
-                    label="Vin Number"
+                    label={t("Vin Number")}
                     variant="text"
                   />
                 </Box>
@@ -206,8 +208,7 @@ const License = (props) => {
         }}
       >
         <Typography>
-          Place our License disc within the frames and hold it there for a few
-          second.
+          {t("Place our License disc within the frames and hold it there for a few seconds.")}
         </Typography>
       </Box>
       <Box>
@@ -231,50 +232,50 @@ const License = (props) => {
           color: "white",
         }}
       >
-        <Typography>Move Closer to the scan area.</Typography>
+        <Typography>{t("Move Closer to the scan area.")}</Typography>
       </Box>
       <Dialog open={licenseData.length > 0} size="md">
         <DialogTitle disableTypography="false">
           <Typography variant="h4" style={{ textAlign: "center" }}>
-            Details found !
+            {t("Details found !")}
           </Typography>
         </DialogTitle>
         <Box p={1} m={2} textAlign="center">
           <Typography variant="h6">{licenseData[9]}</Typography>
           <Divider />
           <Typography variant="body2" textAlign="center">
-            Make
+            {t("Make")}
           </Typography>
         </Box>
         <Box p={1} m={2} textAlign="center">
           <Typography variant="h6">{licenseData[8]}</Typography>
           <Divider />
           <Typography variant="body2" textAlign="center">
-            Model
+            {t("Model")}
           </Typography>
         </Box>
         <Box p={1} m={2} textAlign="center">
           <Typography variant="h6">{licenseData[6]}</Typography>
           <Divider />
           <Typography variant="body2" textAlign="center">
-            License No
+            {t("License No")}
           </Typography>
         </Box>
         <Box p={1} m={2} textAlign="center">
           <Typography variant="h6">{licenseData[12]}</Typography>
           <Divider />
           <Typography variant="body2" textAlign="center">
-            Vin No
+            {t("Vin No")}
           </Typography>
         </Box>
         <DialogActions>
           <RoundedButton
-            label="Retake"
+            label={("Retake")}
             color="tertiary"
             onClick={handleReset}
           ></RoundedButton>
           <RoundedButton
-            label="Confirm"
+            label={t("Confirm")}
             onClick={handleClicked}
           ></RoundedButton>
         </DialogActions>

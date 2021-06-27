@@ -14,7 +14,7 @@ import { Dialog, DialogActions, DialogContent } from "@material-ui/core";
 import CarDataContext from "../../../../CarDataContext";
 import { useContext } from "react";
 import FinalAsessmentSubmission$ from "../../../../APIConfig/FinalAsessmentSubmission";
-
+import { useTranslation } from "react-i18next";
 const StyledPaper = styled(Paper)({
   margin: "16px 8px 16px 8px",
   borderRadius: "16px",
@@ -26,6 +26,7 @@ const StyledCard = styled(Card)({
   backgroundColor: "#F0F1F5",
 });
 const Report = (props) => {
+  const { t } = useTranslation();
   let carData = useContext(CarDataContext);
   if (!Object.keys(carData).length) {
     carData = {
@@ -59,20 +60,20 @@ const Report = (props) => {
     <Box>
       <Card>
         <CardHeader
-          title="Assessment Summary"
+          title={t("Assessment Summary")}
           titleTypographyProps={{ align: "center" }}
         />
         <CardContent>
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Box p={2}>
-                <Typography variant="body2">Make</Typography>
+                <Typography variant="body2">{t("Make")}</Typography>
                 <Typography variant="h6">{carData.license[9]}</Typography>
               </Box>
             </Grid>
             <Grid item xs={6}>
               <Box p={2}>
-                <Typography variant="body2">Model</Typography>
+                <Typography variant="body2">{t("Model")}</Typography>
                 <Typography variant="h6">{carData.license[8]}</Typography>
               </Box>
             </Grid>
@@ -80,13 +81,13 @@ const Report = (props) => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Box p={2}>
-                <Typography variant="body2">License Plate</Typography>
+                <Typography variant="body2">{t("License Plate")}</Typography>
                 <Typography variant="h6">{carData.license[6]}</Typography>
               </Box>
             </Grid>
             <Grid item xs={6}>
               <Box p={2}>
-                <Typography variant="body2">Vin Number</Typography>
+                <Typography variant="body2">{t("Vin Number")}</Typography>
                 <Typography variant="h6">{carData.license[12]}</Typography>
               </Box>
             </Grid>
@@ -94,7 +95,7 @@ const Report = (props) => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Box p={2}>
-                <Typography variant="body2">Request Date</Typography>
+                <Typography variant="body2">{t("Request Date")}</Typography>
                 <Typography variant="h6">
                   {new Intl.DateTimeFormat("en-ZA").format(new Date())}
                 </Typography>

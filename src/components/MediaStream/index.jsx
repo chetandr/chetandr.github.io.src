@@ -160,6 +160,7 @@ const MediaStream = (props) => {
 
   const renderMedia = React.useCallback(async () => {
     const media = await getMedia();
+    debugger;
     if (media && videoRef.current) {
       if ("srcObject" in videoRef.current) {
         videoRef.current.srcObject = media.stream;
@@ -301,6 +302,8 @@ const MediaStream = (props) => {
                 true
               );
               props.nextAction({ ...response.data, thumbnail: thumbnailUrl });
+            } else {
+              
             }
           });
         } catch (e) {
@@ -414,6 +417,7 @@ const MediaStream = (props) => {
           // onLoadedMetadata={metaDataLoadHandle}
           // style={{ display: 'none' }}
           // className="videosize"
+          style={{ border: "solid 2px red" }}
         ></video>
         <img
           ref={imageRef}

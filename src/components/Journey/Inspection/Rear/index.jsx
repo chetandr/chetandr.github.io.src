@@ -12,7 +12,9 @@ import { Typography } from '@material-ui/core';
 import PhotoCameraRounded from '@material-ui/icons/PhotoCameraRounded';
 import CaptureIcon from '../../../CaptureIcon';
 import CaptureButton from '../../../CaptureButton';
+import { useTranslation } from "react-i18next";
 const License = (props) => {
+	const { t } = useTranslation();
 	const handleClicked = (data) => {
 		console.log('next Clicked', props.nextAction);
 		props.nextAction(data);
@@ -31,7 +33,7 @@ const License = (props) => {
 					color: 'white',
 				}}
 			>
-				<Typography>Position rear of the car within the outlines and take a photo.</Typography>
+				 <Typography> {t("capture", { side: t("rear") })}</Typography>
 			</Box>
 
 			<MediaStreamWithDnD nextAction={handleClicked} side="REAR_SIDE" toggleWaiting={props.toggleWaiting}/>

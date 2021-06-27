@@ -12,7 +12,9 @@ import { Typography } from '@material-ui/core';
 import PhotoCameraRounded from '@material-ui/icons/PhotoCameraRounded';
 import CaptureIcon from '../../../CaptureIcon';
 import CaptureButton from '../../../CaptureButton';
-const License = (props) => {
+import { useTranslation } from "react-i18next";
+const Front = (props) => {
+	const { t } = useTranslation();
 	const handleClicked = (data) => {
 		console.log('next Clicked', props.nextAction);
 		props.nextAction(data);
@@ -23,7 +25,7 @@ const License = (props) => {
 			<Box
 				p={4}
 				style={{
-					display: 'block',
+					display: 'none',
 					width: '100%',
 					position: 'absolute',
 					top: '10px',
@@ -32,7 +34,7 @@ const License = (props) => {
 					color: 'white',
 				}}
 			>
-				<Typography>Position front of the car within the outlines and take a photo.</Typography>
+				 <Typography> {t("capture", { side: t("front") })}</Typography>
 			</Box>
 
 			<MediaStreamWithDnD nextAction={handleClicked} side="FRONT_SIDE" toggleWaiting={props.toggleWaiting}/>
@@ -42,7 +44,7 @@ const License = (props) => {
 			{/* <CaptureButton onClick={handleClicked}/> */}
 			<Box
 				style={{
-					display: 'block',
+					display: 'none',
 					width: '100%',
 					position: 'absolute',
 					top: '20%',
@@ -58,4 +60,4 @@ const License = (props) => {
 	// return <Backdrop open={true}></Backdrop>
 };
 
-export default License;
+export default Front;
