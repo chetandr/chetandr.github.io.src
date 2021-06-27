@@ -153,7 +153,7 @@ const MediaStream = (props) => {
         toImgX,
         toImgY,
         scaleImageX,
-        scaleImageY
+        scaleImageY,
       };
     },
     [videoWrapper]
@@ -183,13 +183,13 @@ const MediaStream = (props) => {
         toImgX,
         toImgY,
         scaleImageX,
-        scaleImageY
+        scaleImageY,
       } = getTargetDimensions(media.settings);
 
       videoRef.current.width = videoWidth;
       videoRef.current.height = videoHeight;
-      imageRef.current.width = videoWidth;//toImgWidth;
-      imageRef.current.height = videoHeight;//toImgHeight;
+      imageRef.current.width = toImgWidth; //toImgWidth;
+      imageRef.current.height = toImgHeight; //toImgHeight;
       if (toWidth < document.documentElement.clientWidth) {
         videoRef.current.style.transform = `translate(${-videoRef.current
           .offsetLeft}px, ${-videoRef.current
@@ -203,10 +203,10 @@ const MediaStream = (props) => {
       }
 
       videoRef.current.style.transformOrigin = "top left";
-      imageCanvasRef.current.width = videoWidth;//;toImgWidth; //media.settings.width; //window.innerWidth;
-      imageCanvasRef.current.height = videoHeight;//; //media.settings.height; //window.innerHeight;
+      imageCanvasRef.current.width = toImgWidth; //;toImgWidth; //media.settings.width; //window.innerWidth;
+      imageCanvasRef.current.height = toImgHeight; //; //media.settings.height; //window.innerHeight;
       const ctx = imageCanvasRef.current.getContext("2d");
-      // ctx.scale(scaleImageX, scaleImageY);
+      ctx.scale(scaleImageX, scaleImageY);
       imageCanvasRef.current.style.width = `${toWidth}px`;
       imageCanvasRef.current.style.height = `${toHeight}px`;
       const newDebugData = {
@@ -242,6 +242,8 @@ const MediaStream = (props) => {
       toY,
       scaleRatioX,
       scaleRatioY,
+      toImgWidth,
+      toImgHeight
     } = getTargetDimensions(mediaSettings);
 
     const ctx = imageCanvasRef.current.getContext("2d");
@@ -252,7 +254,7 @@ const MediaStream = (props) => {
     ctx.drawImage(videoRef.current, 0, 0);
 
     const url = imageCanvasRef.current.toDataURL("image/png");
-    const imgData =ctx.getImageData(0,0,toWidth, toHeight);
+    const imgData = ctx.getImageData(0, 0, toImgWidth, toImgHeight);
     const thumbWidth = 480;
     const ctxt = thumbnail.current.getContext("2d");
     thumbnail.current.width = thumbWidth; //imageCanvasRef.current.width;
@@ -263,9 +265,9 @@ const MediaStream = (props) => {
     );
     ctxt.drawImage(videoRef.current, 2, 0);
     const thumbnailUrl = thumbnail.current.toDataURL("image/png");
-    // downloadAnchor.current.href = thumbnailUrl;
-    // downloadAnchor.current.download = 'MyPhoto.png';
-    // downloadAnchor.current.click();
+    downloadAnchor.current.href = thumbnailUrl;
+    downloadAnchor.current.download = 'MyPhoto.png';
+    downloadAnchor.current.click();
     imageCanvasRef.current.toBlob(async (blob) => {
       // imageRef.current.style.display = "block";
       const [md5Data] = await getMD5(blob);
@@ -299,8 +301,8 @@ const MediaStream = (props) => {
                 response.data.id,
                 carData.geoLocation,
                 {
-                  height: videoWidth,
-                  width: videoHeight,
+                  height: toImgHeight,
+                  width: toImgWidth,
                 },
                 [
                   {
@@ -319,7 +321,7 @@ const MediaStream = (props) => {
         }
       });
     });
-    setTimeout(() => setCapturing(false), 3000);
+    // setTimeout(() => setCapturing(false), 3000);
     setStage("CAPTURED");
   };
 
@@ -425,7 +427,7 @@ const MediaStream = (props) => {
           // onLoadedMetadata={metaDataLoadHandle}
           // style={{ display: 'none' }}
           // className="videosize"
-          style={{ border: "solid 2px red" }}
+          // style={{ border: "solid 2px red" }}
         ></video>
         <img
           ref={imageRef}
@@ -444,7 +446,7 @@ const MediaStream = (props) => {
         ></canvas>
         <canvas
           ref={imageCanvasRef}
-          style={{ border: "solid 2px green" }}
+          style={{ border: "solid 2px green", display: "none" }}
         ></canvas>
         <canvas
           ref={thumbnail}

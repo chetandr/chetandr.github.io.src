@@ -25,7 +25,7 @@ const Front = (props) => {
 			<Box
 				p={4}
 				style={{
-					display: 'none',
+					// display: 'none',
 					width: '100%',
 					position: 'absolute',
 					top: '10px',
@@ -44,7 +44,7 @@ const Front = (props) => {
 			{/* <CaptureButton onClick={handleClicked}/> */}
 			<Box
 				style={{
-					display: 'none',
+					// display: 'none',
 					width: '100%',
 					position: 'absolute',
 					top: '20%',
