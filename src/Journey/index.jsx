@@ -111,6 +111,7 @@ const Journey = () => {
           src="/carScan_icon.png"
           width="40px"
           style={{ marginLeft: "-50px" }}
+          alt="CarScan"
         />
       </Backdrop>
     </Box>

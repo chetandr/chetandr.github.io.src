@@ -110,57 +110,58 @@ const MediaStream = (props) => {
     );
   };
 
-  const getTargetDimensions = (ms) => {
-    const video_width = ms.width;
-    const video_height = ms.height;
-    let to_width = videoWrapper.current.offsetWidth;
-    let to_height = videoWrapper.current.offsetHeight;
-    if (to_width > to_height) {
-      to_height = Math.floor((to_width * video_height) / video_width);
-    } else {
-      to_width = Math.floor((to_height * video_width) / video_height);
-    }
-    const scaleRatioY = to_height / video_height;
-    const scaleRatioX = to_width / video_width;
-    let to_x = 0;
-    let to_y = 0;
-    if (to_width > document.documentElement.clientWidth) {
-      to_x = -(to_width - document.documentElement.clientWidth) / 2;
-    }
-    // if(to_width > to_height) {
-    // 	if (video_width > to_width) {
-    // 		to_x = -Math.ceil(scaleRatioX * 100);
-    // 		to_y = -Math.ceil(scaleRatioY * 100);
-    // 	} else {
-    // 		to_x = -Math.ceil((video_width / to_width) * 100);
-    // 		to_y = -Math.ceil((video_height / to_height) * 100);
-    // 	}
-    // } else {
-    // 	if (video_width > to_height) {
-    // 		to_x = (video_width - to_height) / 2;
-    // 		to_y = -Math.ceil(scaleRatioY * 100);
-    // 	} else {
-    // 		to_x = -Math.ceil((video_width / to_width) * 100);
-    // 		to_y = -Math.ceil((video_height / to_height) * 100);
-    // 	}
-    // }
+  const getTargetDimensions = React.useCallback(
+    (ms) => {
+      const videoWidth = ms.width;
+      const videoHeight = ms.height;
+      const toImgWidth = 1920;
+      const toImgHeight = Math.floor((toImgWidth * videoHeight) / videoWidth);
 
-    console.log(video_width, video_height, to_width, to_height, to_x, to_y);
-    return [
-      video_width,
-      video_height,
-      to_width,
-      to_height,
-      to_x,
-      to_y,
-      scaleRatioX,
-      scaleRatioY,
-    ];
-  };
+      let toWidth = videoWrapper.current.offsetWidth;
+      let toHeight = videoWrapper.current.offsetHeight;
+      if (toWidth > toHeight) {
+        toHeight = Math.floor((toWidth * videoHeight) / videoWidth);
+      } else {
+        toWidth = Math.floor((toHeight * videoWidth) / videoHeight);
+      }
+      const scaleRatioX = toWidth / videoWidth;
+      const scaleRatioY = toHeight / videoHeight;
+      const scaleImageX = toImgWidth / videoWidth;
+      const scaleImageY = toImgHeight / videoHeight;
+      let toX = 0;
+      let toY = 0;
+      if (toWidth > document.documentElement.clientWidth) {
+        toX = -(toWidth - document.documentElement.clientWidth) / 2;
+      }
+      let toImgX = 0;
+      let toImgY = 0;
+      if (toWidth > document.documentElement.clientWidth) {
+        toImgX = -(toImgWidth - document.documentElement.clientWidth) / 2;
+      }
+
+      return {
+        videoWidth,
+        videoHeight,
+        toWidth,
+        toHeight,
+        toX,
+        toY,
+        scaleRatioX,
+        scaleRatioY,
+        toImgWidth,
+        toImgHeight,
+        toImgX,
+        toImgY,
+        scaleImageX,
+        scaleImageY
+      };
+    },
+    [videoWrapper]
+  );
 
   const renderMedia = React.useCallback(async () => {
     const media = await getMedia();
-    debugger;
+    // debugger;
     if (media && videoRef.current) {
       if ("srcObject" in videoRef.current) {
         videoRef.current.srcObject = media.stream;
@@ -168,49 +169,57 @@ const MediaStream = (props) => {
         videoRef.src = window.URL.createObjectURL(media.stream);
       }
       setMediaSettings(media.settings);
-      const [
-        video_width,
-        video_height,
-        to_width,
-        to_height,
-        to_x,
-        to_y,
+      const {
+        videoWidth,
+        videoHeight,
+        toWidth,
+        toHeight,
+        toX,
+        toY,
         scaleRatioX,
         scaleRatioY,
-      ] = getTargetDimensions(media.settings);
+        toImgWidth,
+        toImgHeight,
+        toImgX,
+        toImgY,
+        scaleImageX,
+        scaleImageY
+      } = getTargetDimensions(media.settings);
 
-      videoRef.current.width = video_width;
-      videoRef.current.height = video_height;
-      imageRef.current.width = video_width;
-      imageRef.current.height = video_height;
-      if (to_width < document.documentElement.clientWidth) {
+      videoRef.current.width = videoWidth;
+      videoRef.current.height = videoHeight;
+      imageRef.current.width = videoWidth;//toImgWidth;
+      imageRef.current.height = videoHeight;//toImgHeight;
+      if (toWidth < document.documentElement.clientWidth) {
         videoRef.current.style.transform = `translate(${-videoRef.current
           .offsetLeft}px, ${-videoRef.current
           .offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
       } else {
         console.log(
-          `translate(${-to_x}px, ${-to_y}px) scale(${scaleRatioX}, ${scaleRatioY})`
+          `translate(${-toX}px, ${-toY}px) scale(${scaleRatioX}, ${scaleRatioY})`
         );
-        videoRef.current.style.transform = `translate(${to_x}px, ${-videoRef
+        videoRef.current.style.transform = `translate(${toX}px, ${-videoRef
           .current.offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
       }
 
       videoRef.current.style.transformOrigin = "top left";
-      imageCanvasRef.current.width = video_width; //media.settings.width; //window.innerWidth;
-      imageCanvasRef.current.height = video_height; //media.settings.height; //window.innerHeight;
-      imageCanvasRef.current.style.width = `${to_width}px`;
-      imageCanvasRef.current.style.height = `${to_height}px`;
+      imageCanvasRef.current.width = videoWidth;//;toImgWidth; //media.settings.width; //window.innerWidth;
+      imageCanvasRef.current.height = videoHeight;//; //media.settings.height; //window.innerHeight;
+      const ctx = imageCanvasRef.current.getContext("2d");
+      // ctx.scale(scaleImageX, scaleImageY);
+      imageCanvasRef.current.style.width = `${toWidth}px`;
+      imageCanvasRef.current.style.height = `${toHeight}px`;
       const newDebugData = {
-        video: `${video_width} x ${video_height} (${getReso(
-          video_width,
-          video_height
+        video: `${videoWidth} x ${videoHeight} (${getReso(
+          videoWidth,
+          videoHeight
         )})`,
         scale: `${scaleRatioX} x ${scaleRatioY}`,
         media: `${media.settings.width} x ${media.settings.height}`,
-        target: `${to_width} x ${to_height}`,
-        targetXY: `${to_x} x ${to_y}`,
+        target: `${toWidth} x ${toHeight}`,
+        targetXY: `${toX} x ${toY}`,
       };
-      // setInterval(() => readBarcode(to_width, to_height), 2000)
+      // setInterval(() => readBarcode(toWidth, toHeight), 2000)
       setDebugData(newDebugData);
     }
   }, [videoRef, videoWrapper, canvasRef, imageCanvasRef]);
@@ -224,16 +233,16 @@ const MediaStream = (props) => {
   }, [videoRef, videoWrapper, canvasRef, imageCanvasRef]);
 
   const captureImage = async () => {
-    const [
-      video_width,
-      video_height,
-      to_width,
-      to_height,
-      to_x,
-      to_y,
+    const {
+      videoWidth,
+      videoHeight,
+      toWidth,
+      toHeight,
+      toX,
+      toY,
       scaleRatioX,
       scaleRatioY,
-    ] = getTargetDimensions(mediaSettings);
+    } = getTargetDimensions(mediaSettings);
 
     const ctx = imageCanvasRef.current.getContext("2d");
     setCapturing(true);
@@ -242,8 +251,8 @@ const MediaStream = (props) => {
     // ctx.scale(scaleRatioX, scaleRatioY);
     ctx.drawImage(videoRef.current, 0, 0);
 
-    // const url = imageCanvasRef.current.toDataURL("image/png");
-    // const imgData =ctx.getImageData(0,0,to_width, to_height);
+    const url = imageCanvasRef.current.toDataURL("image/png");
+    const imgData =ctx.getImageData(0,0,toWidth, toHeight);
     const thumbWidth = 480;
     const ctxt = thumbnail.current.getContext("2d");
     thumbnail.current.width = thumbWidth; //imageCanvasRef.current.width;
@@ -261,8 +270,8 @@ const MediaStream = (props) => {
       // imageRef.current.style.display = "block";
       const [md5Data] = await getMD5(blob);
       console.log("BLOB", blob);
-      if(props.toggleWaiting) {
-        props.toggleWaiting()
+      if (props.toggleWaiting) {
+        props.toggleWaiting();
       }
       GeneratePresignedUrl$(
         9994,
@@ -290,8 +299,8 @@ const MediaStream = (props) => {
                 response.data.id,
                 carData.geoLocation,
                 {
-                  height: video_width,
-                  width: video_height,
+                  height: videoWidth,
+                  width: videoHeight,
                 },
                 [
                   {
@@ -303,7 +312,6 @@ const MediaStream = (props) => {
               );
               props.nextAction({ ...response.data, thumbnail: thumbnailUrl });
             } else {
-              
             }
           });
         } catch (e) {
@@ -316,13 +324,13 @@ const MediaStream = (props) => {
   };
 
   const captureBox = () => {
-    const video_width = mediaSettings.width;
-    const video_height = mediaSettings.height;
-    const to_width = videoWrapper.current.offsetWidth; //document.documentElement.clientWidth; //window.innerWidth;
-    const to_height = Math.floor((to_width * video_height) / video_width); //window.innerHeight;
+    const videoWidth = mediaSettings.width;
+    const videoHeight = mediaSettings.height;
+    const toWidth = videoWrapper.current.offsetWidth; //document.documentElement.clientWidth; //window.innerWidth;
+    const toHeight = Math.floor((toWidth * videoHeight) / videoWidth); //window.innerHeight;
     // const ratio = media.settings.aspectRatio;
-    const scaleRatioY = to_height / video_height;
-    const scaleRatioX = to_width / video_width;
+    const scaleRatioY = toHeight / videoHeight;
+    const scaleRatioX = toWidth / videoWidth;
     const ctx = imageCanvasRef.current.getContext("2d");
     ctx.lineWidth = "2";
 
@@ -436,7 +444,7 @@ const MediaStream = (props) => {
         ></canvas>
         <canvas
           ref={imageCanvasRef}
-          style={{ border: "solid 2px green", display: "none" }}
+          style={{ border: "solid 2px green" }}
         ></canvas>
         <canvas
           ref={thumbnail}
@@ -492,6 +500,6 @@ const MediaStream = (props) => {
 
 MediaStream.defaultProps = {
   nextAction: () => {},
-  side:""
+  side: "",
 };
 export default MediaStream;
