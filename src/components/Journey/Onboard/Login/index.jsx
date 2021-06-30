@@ -95,10 +95,11 @@ const Login = (props) => {
       swipeButton.current.reset();
     }
   };
+  console.log(companyData?.logo_thumbnail_file_path);
   return (
     <React.Fragment>
       
-      {companyData !== null && <Logo imageURL={companyData?.logo} />}
+      {companyData !== null && <Logo imageURL={companyData?.logo_thumbnail_file_path} />}
 
       <Box pt={2} px={4}>
         <Typography style={{ textAlign: "center" }}>

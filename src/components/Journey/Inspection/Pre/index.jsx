@@ -13,11 +13,13 @@ import PhotoCameraRounded from "@material-ui/icons/PhotoCameraRounded";
 import CaptureIcon from "../../../CaptureIcon";
 import CaptureButton from "../../../CaptureButton";
 import { useTranslation } from "react-i18next";
-
-const Front = (props) => {
+import captureState from "../../../../states/captureState";
+import startCase from "lodash/startCase";
+const Pre = (props) => {
   const { t } = useTranslation();
   const [showOverlay, setShowOverlay] = React.useState(true);
   const [resetRnd, setResetRnd] = React.useState(true);
+  const [mediaCaptureState, setMediaCaptureState] = React.useState('INIT');
   const toggleOverlay = () => {
     setShowOverlay(!showOverlay);
   };
@@ -27,8 +29,13 @@ const Front = (props) => {
   };
 
   const reset = () => {
-	 setResetRnd(false); 
-  }
+    setResetRnd(false);
+  };
+  console.log("mediaCaptureState", mediaCaptureState);
+  captureState.subscribe((state) => {
+    console.log("mediaCaptureState", state, mediaCaptureState);
+    setMediaCaptureState(state);
+  });
 
   return (
     <React.Fragment>
@@ -44,16 +51,16 @@ const Front = (props) => {
           color: "white",
         }}
       >
-        <Typography> {t("capture", { side: t("front") })}</Typography>
+        {mediaCaptureState === "INIT" &&<Typography> {t("capture", { side: startCase(t(props.side).toLowerCase()) })}</Typography>}
       </Box>
 
       <MediaStreamWithDnD
         nextAction={handleClicked}
-        side="FRONT_SIDE"
+        side={props.side}
         toggleWaiting={props.toggleWaiting}
         toggleOverlay={toggleOverlay}
-		resetRnd={resetRnd}
-		reset={reset}
+        resetRnd={resetRnd}
+        reset={reset}
       />
       {/* <Box style={{ postion: 'absolute', top: 0, left: 0 }}>
 				<OverlayWindow windowSize={24} />
@@ -64,17 +71,17 @@ const Front = (props) => {
           // display: 'none',
           width: "100%",
           position: "absolute",
-          top: "20%",
+          top: props.overlayImagePosition || "20%",
           zIndex: 200,
           textAlign: "center",
           color: "white",
         }}
       >
-        {showOverlay && <OverlayImage image="FrontFull.png" width="50%" />}
+        {mediaCaptureState === "INIT" && <OverlayImage image={props.overlayImage} width={props.overlayImageSize || "50%"} />}
       </Box>
     </React.Fragment>
   );
   // return <Backdrop open={true}></Backdrop>
 };
 
-export default Front;
+export default Pre;

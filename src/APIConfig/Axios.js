@@ -6,7 +6,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 const  Axios = axios.create({
     baseURL: process.env.REACT_APP_CARDATA_API || "https://cardata.devinternal.carscan.ai​​",
-    timeout: 30000,
+    timeout: 60000,
   });
 
 export default Axios;

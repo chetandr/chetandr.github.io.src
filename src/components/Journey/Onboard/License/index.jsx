@@ -27,7 +27,7 @@ const Divider = styled(Box)({
 });
 const License = (props) => {
   const { t } = useTranslation();
-  const [licenseData, setlicenseData] = React.useState([]);
+  const [licenseData, setLicenseData] = React.useState([]);
   const codeReader = new BrowserMultiFormatReader();
   const result = React.useRef();
   const video = React.useRef();
@@ -37,9 +37,10 @@ const License = (props) => {
   };
   const handleReset = () => {
     console.log("RESET");
-    setlicenseData([]);
+    setLicenseData([]);
     codeReader.reset();
   };
+
   let carData = React.useContext(CarDataContext);
   if (Object.keys(carData).length === 0 && carData.constructor === Object) {
     carData = {
@@ -80,15 +81,20 @@ const License = (props) => {
       video.current,
       (res, err) => {
         if (res) {
+          codeReader.stream.getTracks().forEach(function (track) {
+            if (track.readyState == "live") {
+              track.stop();
+            }
+          });
           const carInfo = res.text.split("%");
           console.log("carInfo", carInfo);
-          setlicenseData(carInfo);
+          setLicenseData(carInfo);
           codeReader.captureCanvas.toBlob(async (blob) => {
             // imageRef.current.style.display = "block";
             const [md5Data] = await getMD5(blob);
             console.log("BLOB", blob);
-            if(props.toggleWaiting) {
-              props.toggleWaiting()
+            if (props.toggleWaiting) {
+              props.toggleWaiting();
             }
             GeneratePresignedUrl$(
               9994,
@@ -162,7 +168,9 @@ const License = (props) => {
         <OverlayMessageBox>
           <Box p={2}>
             <Box p={1}>
-              <Typography variant="body1">{t("Generate Vehicle Details")}</Typography>
+              <Typography variant="body1">
+                {t("Generate Vehicle Details")}
+              </Typography>
             </Box>
             <Grid container>
               <Grid item xs={1}></Grid>
@@ -208,7 +216,9 @@ const License = (props) => {
         }}
       >
         <Typography>
-          {t("Place our License disc within the frames and hold it there for a few seconds.")}
+          {t(
+            "Place our License disc within the frames and hold it there for a few seconds."
+          )}
         </Typography>
       </Box>
       <Box>
@@ -236,7 +246,7 @@ const License = (props) => {
       </Box>
       <Dialog open={licenseData.length > 0} size="md">
         <DialogTitle disableTypography="false">
-          <Typography variant="h4" style={{ textAlign: "center" }}>
+          <Typography variant="h4" style={{ textAlign: "center", padding: "8px" }}>
             {t("Details found !")}
           </Typography>
         </DialogTitle>
@@ -270,7 +280,7 @@ const License = (props) => {
         </Box>
         <DialogActions>
           <RoundedButton
-            label={("Retake")}
+            label={"Retake"}
             color="tertiary"
             onClick={handleReset}
           ></RoundedButton>

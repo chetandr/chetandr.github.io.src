@@ -24,7 +24,7 @@ function App() {
 					<Route exact path='/swipe'>
 						<SwipeButton />
 					</Route>
-					<Route exact path='/journey/:type/:step'>
+					<Route exact path='/journey/:type/:sub/:step?'>
 						<Suspense fallback={<div>Loading...</div>}>
 							<Journey />
 						</Suspense>

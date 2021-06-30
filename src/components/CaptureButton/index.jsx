@@ -19,7 +19,7 @@ const CaptureButton = (props) => {
 			}}
 		>
 			<IconButton onClick={props.onClick}>
-				<CaptureIcon />
+				<CaptureIcon style={{width: "80px"}}/>
 			</IconButton>
 		</Box>
 	);

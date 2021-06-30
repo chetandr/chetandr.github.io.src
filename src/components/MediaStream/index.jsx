@@ -6,30 +6,23 @@ import DebugData from "../DebugData";
 import { usePreview } from "react-dnd-preview";
 // import Hierarchy from './components/Hierarchy';
 import CaptureButton from "../CaptureButton";
+import AcceptButton from "../AcceptButton";
 import GeneratePresignedUrl$ from "../../APIConfig/GeneratePresignedUrl";
 import UploadImageToS3$ from "../../APIConfig/UploadImageToS3";
 import UpdateImageFileMetaDataArea$ from "../../APIConfig/UpdateImageFileMetaDataArea";
 import CarDataContext from "../../CarDataContext";
-
-import { S3Client } from "@aws-sdk/client-s3";
-// or with ES6 modulesBinaryBitmap(new HybridBinarizer
-import {
-  MultiFormatReader,
-  BarcodeFormat,
-  DecodeHintType,
-  RGBLuminanceSource,
-  BitmapLuminanceSource,
-  BinaryBitmap,
-  BitSource,
-  HybridBinarizer,
-  PDF417Reader,
-} from "@zxing/library";
-
+import RoundedButton from "../RoundedButton";
+import { useTranslation } from "react-i18next";
+import Box from "@material-ui/core/Box";
+import captureState from "../../states/captureState";
+// import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
+import { IconButton } from "@material-ui/core";
 const ItemTypes = {
   BOUNDARY: "boundry",
 };
 
 const MediaStream = (props) => {
+  const { t } = useTranslation();
   const debug = false;
   const videoRef = React.useRef();
   const videoWrapper = React.useRef();
@@ -61,6 +54,10 @@ const MediaStream = (props) => {
       geoLocation: JSON.parse(sessionStorage.getItem("geoLocation")),
     };
   }
+  captureState.subscribe((state) => {
+    console.log("Capture Stage", state);
+    setStage(state);
+  });
   console.log("carData", carData);
   const [{ isDragging }, bbox] = useDrag(() => ({
     type: ItemTypes.BOUNDARY,
@@ -243,12 +240,12 @@ const MediaStream = (props) => {
       scaleRatioX,
       scaleRatioY,
       toImgWidth,
-      toImgHeight
+      toImgHeight,
     } = getTargetDimensions(mediaSettings);
 
     const ctx = imageCanvasRef.current.getContext("2d");
     setCapturing(true);
-    videoRef.current.pause();
+
     // videoRef.current.currentTime = 0;
     // ctx.scale(scaleRatioX, scaleRatioY);
     ctx.drawImage(videoRef.current, 2, 0);
@@ -258,15 +255,29 @@ const MediaStream = (props) => {
     const thumbWidth = 480;
     const ctxt = thumbnail.current.getContext("2d");
     thumbnail.current.width = thumbWidth; //imageCanvasRef.current.width;
-    thumbnail.current.height = thumbnail.current.width / 1.7;
-    ctxt.scale(
-      thumbWidth / imageCanvasRef.current.width,
-      thumbWidth / 1.7 / imageCanvasRef.current.height
+    thumbnail.current.height = thumbWidth / mediaSettings.aspectRatio; //imageCanvasRef.current.width;
+    // ctxt.scale(
+    //   thumbWidth / imageCanvasRef.current.width,
+    //   thumbWidth / mediaSettings.aspectRatio / imageCanvasRef.current.height
+    // );
+    ctxt.drawImage(
+      imageCanvasRef.current,
+      0,
+      0,
+      imageCanvasRef.current.width,
+      imageCanvasRef.current.height,
+      0,
+      0,
+      thumbnail.current.width,
+      thumbnail.current.height
     );
-    ctxt.drawImage(videoRef.current, 2, 0);
+    // thumbnail.current.width = thumbWidth;
+    // thumbnail.current.height = thumbWidth / mediaSettings.aspectRatio;
     const thumbnailUrl = thumbnail.current.toDataURL("image/png");
-    downloadAnchor.current.href = thumbnailUrl;
-    // downloadAnchor.current.download = 'MyPhoto.png';
+
+    // props.nextAction({ thumbnail: thumbnailUrl });
+    // downloadAnchor.current.href = thumbnailUrl;
+    // downloadAnchor.current.download = "MyPhoto.png";
     // downloadAnchor.current.click();
     imageCanvasRef.current.toBlob(async (blob) => {
       // imageRef.current.style.display = "block";
@@ -312,67 +323,92 @@ const MediaStream = (props) => {
                 ],
                 true
               );
+              if (videoRef.current) {
+                videoRef.current.play();
+              }
               props.nextAction({ ...response.data, thumbnail: thumbnailUrl });
             } else {
+              if (props.toggleWaiting) {
+                props.toggleWaiting();
+              }
             }
           });
         } catch (e) {
+          if (props.toggleWaiting) {
+            props.toggleWaiting();
+          }
           console.error("Error", e);
         }
       });
     });
-    // setTimeout(() => setCapturing(false), 3000);
-    setStage("CAPTURED");
+    setTimeout(() => setCapturing(false), 3000);
+    // setStage("CAPTURED");
   };
 
   const captureBox = () => {
-    const videoWidth = mediaSettings.width;
-    const videoHeight = mediaSettings.height;
-    const toWidth = videoWrapper.current.offsetWidth; //document.documentElement.clientWidth; //window.innerWidth;
-    const toHeight = Math.floor((toWidth * videoHeight) / videoWidth); //window.innerHeight;
-    // const ratio = media.settings.aspectRatio;
-    const scaleRatioY = toHeight / videoHeight;
-    const scaleRatioX = toWidth / videoWidth;
+    const {
+      videoWidth,
+      videoHeight,
+      toWidth,
+      toHeight,
+      toX,
+      toY,
+      scaleRatioX,
+      scaleRatioY,
+      toImgWidth,
+      toImgHeight,
+    } = getTargetDimensions(mediaSettings);
     const ctx = imageCanvasRef.current.getContext("2d");
-    ctx.lineWidth = "2";
+    videoRef.current.pause();
+    // videoRef.current.currentTime = 0;
+    // ctx.scale(scaleRatioX, scaleRatioY);
+    ctx.drawImage(videoRef.current, 2, 0);
+    // videoRef.current.style.display = "none";
+    // imageCanvasRef.current.style.display = "block";
+    if (props.toggleOverlay) {
+      props.toggleOverlay();
+    }
+    setStage("CAPTURED");
+    captureState.next("CAPTURED");
+    // ctx.drawImage(vi)
+    // ctx.lineWidth = "2";
 
-    ctx.globalAlpha = 0.2;
-    ctx.fillStyle = "#FFD600";
+    // ctx.globalAlpha = 0.2;
+    // ctx.fillStyle = "#FFD600";
 
-    ctx.fillRect(
-      bboxWrapper.current.offsetLeft / scaleRatioX,
-      bboxWrapper.current.offsetTop / scaleRatioY,
-      bboxWrapper.current.offsetWidth / scaleRatioX,
-      bboxWrapper.current.offsetHeight / scaleRatioY
-    );
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = "#ff7300";
-    ctx.stroke();
+    // ctx.fillRect(
+    //   bboxWrapper.current.offsetLeft / scaleRatioX,
+    //   bboxWrapper.current.offsetTop / scaleRatioY,
+    //   bboxWrapper.current.offsetWidth / scaleRatioX,
+    //   bboxWrapper.current.offsetHeight / scaleRatioY
+    // );
+    // ctx.globalAlpha = 1;
+    // ctx.strokeStyle = "#ff7300";
+    // ctx.stroke();
     setCapturing(true);
     // videoRef.current.pause();
     // videoRef.current.currentTime = 0;
     // // ctx.scale(scaleRatioX, scaleRatioY);
     // ctx.drawImage(videoRef.current, 0, 0);
 
-    const url = imageCanvasRef.current.toDataURL("image/png");
-    imageBboxRef.current.src = url;
-    videoRef.current.style.display = "none";
-    imageBboxRef.current.style.display = "block";
-    imageRef.current.style.display = "none";
-    // videoWrapper.current.style.oveflor ='auto';
-    // imageRef.current.style.transform = `translate(${-videoRef.current.offsetLeft}px, ${-videoRef.current
-    // .offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
-    imageBboxRef.current.style.transformOrigin = "top left";
-    videoRef.current.style.display = "none";
-    imageBboxRef.current.style.display = "block";
-    // photo.current.setAttribute('src', url);
-    // downloadAnchor.current.href = url;
-    // downloadAnchor.current.download = 'MyPhoto.png';
-    // downloadAnchor.current.click();
-    // //
-    // window.URL.revokeObjectURL(url);
-    setTimeout(() => setCapturing(false), 3000);
-    setStage("CAPTURED");
+    // const url = imageCanvasRef.current.toDataURL("image/png");
+    // imageBboxRef.current.src = url;
+    // videoRef.current.style.display = "none";
+    // imageBboxRef.current.style.display = "block";
+    // imageRef.current.style.display = "none";
+    // // videoWrapper.current.style.oveflor ='auto';
+    // // imageRef.current.style.transform = `translate(${-videoRef.current.offsetLeft}px, ${-videoRef.current
+    // // .offsetTop}px) scale(${scaleRatioX}, ${scaleRatioY})`;
+    // imageBboxRef.current.style.transformOrigin = "top left";
+    // videoRef.current.style.display = "none";
+    // imageBboxRef.current.style.display = "block";
+    // // photo.current.setAttribute('src', url);
+    // // downloadAnchor.current.href = url;
+    // // downloadAnchor.current.download = 'MyPhoto.png';
+    // // downloadAnchor.current.click();
+    // // //
+    // // window.URL.revokeObjectURL(url);
+    // setTimeout(() => setCapturing(false), 3000);
   };
   React.useEffect(() => {
     monitor.subscribeToOffsetChange(() => {
@@ -402,10 +438,12 @@ const MediaStream = (props) => {
     ctx.globalAlpha = 1;
     imageBboxRef.current.style.display = "none";
     imageRef.current.style.display = "none";
+    // imageCanvasRef.current.style.display = "none";
     videoRef.current.play();
+    captureState.next("INIT");
     setStage("INIT");
   };
-  console.log("DRAGGING", isDragging);
+  console.log("STAGE", stage);
   return (
     <div ref={drop}>
       {debug && (
@@ -427,7 +465,7 @@ const MediaStream = (props) => {
           // onLoadedMetadata={metaDataLoadHandle}
           // style={{ display: 'none' }}
           // className="videosize"
-          // style={{ border: "solid 2px red" }}
+          style={{ display: stage === "INIT" ? "block" : "none" }}
         ></video>
         <img
           ref={imageRef}
@@ -446,15 +484,14 @@ const MediaStream = (props) => {
         ></canvas>
         <canvas
           ref={imageCanvasRef}
-          style={{ border: "solid 2px green", display: "none" }}
+          style={{ display: stage === "INIT" ? "none" : "block" }}
         ></canvas>
         <canvas
           ref={thumbnail}
           style={{
             border: "solid 2px orange",
             position: "absolute",
-            bottom: "10px",
-            zIndex: "1000",
+            top: "0px",
             display: "none",
           }}
         ></canvas>
@@ -495,7 +532,24 @@ const MediaStream = (props) => {
         image
       </a>
       <MyPreview />
-      <CaptureButton onClick={captureImage} />
+      {stage === "INIT" && <CaptureButton onClick={captureBox} />}
+      {stage === "CAPTURED" && <AcceptButton onClick={captureImage} />}
+      <Box
+        style={{
+          bottom: "10px",
+          position: "absolute",
+          width: "200px",
+          right: "10px",
+        }}
+      >
+        {stage === "CAPTURED" && (
+          <RoundedButton
+            onClick={reset}
+            label={t("Retake")}
+            color="tertiary"
+          ></RoundedButton>
+        )}
+      </Box>
     </div>
   );
 };

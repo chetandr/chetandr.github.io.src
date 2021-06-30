@@ -464,7 +464,7 @@ body {
 }
 
 .window {
-	border: solid  2px;
+	border-style: solid;
 	position: relative;
 }
 
@@ -566,4 +566,13 @@ body {
    transform: scale(1.4);
  }
 
+}
+
+.label {
+	text-align: center;
+}
+
+.text {
+	text-align: center;
+	font-weight: 700 !important;
 }

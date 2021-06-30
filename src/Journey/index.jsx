@@ -7,7 +7,8 @@ import { mockJourney } from "../mockconfig/journey1";
 import CSAItheme from "../Theme";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
+// import MuiThemeProvider from "@material-ui/core/styles/MuiThemeProvider";
+import { ThemeProvider as MuiThemeProvider } from "@material-ui/core/styles";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Box from "@material-ui/core/Box";
 import findIndex from "lodash/findIndex";
@@ -21,7 +22,9 @@ import geoLocation from "../utils/geoLocation";
 import { makeStyles } from "@material-ui/core/styles";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Backdrop from "@material-ui/core/Backdrop";
-
+import captureState from "../states/captureState";
+import carDataStore from "../states/carDataStore";
+import { useEffect } from "react";
 const useStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -29,35 +32,76 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const getCurrentAndNext = (type, step) => {
+const getCurrentAndNext = (type, sub, step) => {
   // findIndex(mockJourney, (mj:StepData) => mj.type === type && mj.step == step);
-  const currentIndex = findIndex(
-    mockJourney,
-    (mj) =>
-      mj.type.toLowerCase() === type.toLowerCase() &&
-      mj.step.toLowerCase() === step.toLowerCase()
-  );
+  // debugger;
+  const currentIndex = findIndex(mockJourney, (mj) => {
+    if (mj.step) {
+      return (
+        mj.type.toLowerCase() === type.toLowerCase() &&
+        mj.sub.toLowerCase() === sub.toLowerCase() &&
+        mj.step.toLowerCase() === step.toLowerCase()
+      );
+    } else {
+      return (
+        mj.type.toLowerCase() === type.toLowerCase() &&
+        mj.sub.toLowerCase() === sub.toLowerCase()
+      );
+    }
+  });
   const prevIndex = currentIndex - 1;
-  const nextIndex = currentIndex + 1;
-  return [prevIndex, currentIndex, nextIndex];
+  const nextIndex = currentIndex === mockJourney.length - 1 ? 0 : currentIndex + 1;
+  return { prevIndex, currentIndex, nextIndex };
 };
 
 const Journey = () => {
+  console.log("JOURNEYSTART");
   const container = React.useRef();
   const classes = useStyles();
   const [carData, setCarData] = React.useState({});
-  let { type, step } = useParams();
+  let { type, sub, step } = useParams();
+
   const [waiting, setWaiting] = React.useState(false);
-
-  // let setIsFullscreen, exitFullscreen;
-
+  const [mediaCaptureState, setMediaCaptureState] = React.useState(null);
+  captureState.subscribe((state) => {
+    console.log("mediaCaptureState", state, mediaCaptureState);
+    setMediaCaptureState(state);
+  });
+  if (!type && !sub) {
+    type = mockJourney[0].type;
+    sub = mockJourney[0].sub;
+    step = mockJourney[0].step;
+  }
+  console.log("ACTIONS", type, sub, step);
+  const { currentIndex, nextIndex } = getCurrentAndNext(type, sub, step);
+  // For the root route i.e "/" load the first type and step
+  useEffect(() => {
+    carDataStore.subscribe(data => setCarData(data));
+  },[])
   // Method called when the next action is to be laoded
   const nextAction = (data) => {
-    const href = `/journey/${mockJourney[nextIndex].type}/${mockJourney[nextIndex].step}`;
-    if (data) {
-      setCarData({ ...carData, [step]: data });
-      sessionStorage.setItem(step, JSON.stringify(data));
+    captureState.next("INIT");
+
+    let href = `/journey/${mockJourney[nextIndex].type}/${mockJourney[nextIndex].sub}`;
+    if (mockJourney[nextIndex].step) {
+      href += `/${mockJourney[nextIndex].step}`;
     }
+    let storeKey = sub.toLowerCase();
+    if (data) {
+      let newCarData = { ...carData };
+      if(!newCarData[sub]) {
+        newCarData[sub] = {};
+      }
+      if (step) {
+        newCarData[sub][step] = data;
+      } else {
+        newCarData[sub] = data;
+      }
+      console.log("newSubData", newCarData)
+      setCarData(newCarData);
+      sessionStorage.setItem("carData", JSON.stringify(newCarData));
+    }
+
     console.log("nextAction", mockJourney[nextIndex].type.toLowerCase());
     // if (mockJourney[nextIndex].type.toLowerCase() === 'inspection') {
     // 	setIsFullscreen();
@@ -73,27 +117,23 @@ const Journey = () => {
   };
 
   // Get the Component to be rendered currently
-  const getComposed = ({ type, step }) => {
+  const getComposed = ({ type, sub, step }) => {
     let Component = [];
-    console.log("Module", startCase(type), startCase(step).split(" ").join(""));
+    console.log("Module", startCase(type), startCase(sub).split(" ").join(""));
     if (type) {
       const newComponent = React.createElement(
-        JourneyModule[startCase(type)][startCase(step)].default,
+        JourneyModule[startCase(type)][startCase(sub)].default,
         {
           nextAction,
           toggleWaiting,
+          mediaCaptureState,
+          ...mockJourney[currentIndex],
         }
       );
       Component.push(newComponent);
     }
     return Component;
   };
-
-  // For the root route i.e "/" load the first type and step
-  if (!type && !step) {
-    type = mockJourney[0].type;
-    step = mockJourney[0].step;
-  }
 
   // try {
   // 	[isFullscreen, setIsFullscreen, exitFullscreen] = useFullscreen(container);
@@ -117,7 +157,6 @@ const Journey = () => {
     </Box>
   );
 
-  const [prevIndex, currentIndex, nextIndex] = getCurrentAndNext(type, step);
   if (mockJourney[currentIndex].step === "license") {
     if (!carData.geoLocation) {
       geoLocation().then((geoData) => {
@@ -127,7 +166,7 @@ const Journey = () => {
     }
   }
   const currentAction = mockJourney[currentIndex];
-  if (type && step) {
+  if (type && sub) {
     return (
       <React.Fragment>
         <CssBaseline />
@@ -137,17 +176,18 @@ const Journey = () => {
               <Container>
                 <ErrorBoundary>
                   {Loader()}
-                  {type && step && getComposed({ type, step })}
+                  {type && sub && getComposed({ type, sub, step })}
                 </ErrorBoundary>
               </Container>
             ) : (
               type &&
-              step && (
+              sub && (
                 <ErrorBoundary>
                   {Loader()}
                   <Box ref={container}>
                     {getComposed({
                       type,
+                      sub,
                       step,
                     })}
                   </Box>
