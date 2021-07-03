@@ -11,8 +11,9 @@ const RoundedButton = (props) => {
 			color={props.color}
 			fullWidth={props.fullWidth}
 			size={props.size}
-			style={{ borderRadius: '28px', height: '0.05%', textTransform: 'none', paddingLeft: '16px',  paddingRight: '16px'  }}
+			style={{ borderRadius: '4px', height: '0.05%', textTransform: 'none', paddingLeft: '16px',  paddingRight: '16px'  }}
 			onClick={handleClick}
+			disabled={props.disabled}
 		>
 			{props.label}
 		</Button>
@@ -26,6 +27,7 @@ RoundedButton.defaultProps = {
 	fullWidth: true,
 	size: 'medium',
 	variant: 'contained',
+	disabled: false,
 };
 
 export default RoundedButton;

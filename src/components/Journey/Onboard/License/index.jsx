@@ -1,6 +1,13 @@
 import React from "react";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
+import TextField from "@material-ui/core/TextField";
+import IconButton from "@material-ui/core/IconButton";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+import ToggleButton from "@material-ui/lab/ToggleButton";
+import Search from "@material-ui/icons/Search";
+import Edit from "@material-ui/icons/Edit";
+import Close from "@material-ui/icons/Close";
 import OverlayWindow from "../../../OverlayWindow";
 import OverlayMessageBox from "../../../OverlayMessageBox";
 import RoundedButton from "../../../RoundedButton";
@@ -27,7 +34,26 @@ const Divider = styled(Box)({
 });
 const License = (props) => {
   const { t } = useTranslation();
-  const [licenseData, setLicenseData] = React.useState([]);
+  const [licenseData, setLicenseData] = React.useState([
+    "",
+    "MVL1CC98",
+    "0157",
+    "1034A06L",
+    "1",
+    "10340024T1P7",
+    "CND364NC",
+    "WPY946W",
+    "Truck tractor / Voorspanmotor",
+    "SCANIA",
+    "R460",
+    "White / Wit",
+    "9BSR6X40003883738",
+    "DC13106L018272235",
+    "2017-04-30",
+    "",
+  ]);
+  const [viewType, setViewType] = React.useState("license");
+  const [editable, setEditable] = React.useState(false);
   const codeReader = new BrowserMultiFormatReader();
   const result = React.useRef();
   const video = React.useRef();
@@ -40,14 +66,29 @@ const License = (props) => {
     setLicenseData([]);
     codeReader.reset();
   };
-
+  const onEdit = (key, value) => {
+    const newLicenseData = [...licenseData];
+    newLicenseData[key] = value;
+    setLicenseData(newLicenseData);
+  };
   let carData = React.useContext(CarDataContext);
-  if (Object.keys(carData).length === 0 && carData.constructor === Object) {
-    carData = {
-      login: JSON.parse(sessionStorage.getItem("login")),
-      geoLocation: JSON.parse(sessionStorage.getItem("geoLocation")),
-    };
+  if (Object.keys(carData).length) {
+    carData = JSON.parse(sessionStorage.getItem("carData"));
   }
+  // if (Object.keys(carData).length) {
+  //   setLicenseData(carData.license);
+  // } else {
+  //   carData = JSON.parse(sessionStorage.getItem("carData"));
+  //   if (Object.keys(carData).length) {
+  //     setLicenseData(carData.license);
+  //   }
+  // }
+  // if (licenseData && licenseData.length == 0) {
+  //   carData = JSON.parse(sessionStorage.getItem("carData"));
+  //   if (carData) {
+
+  //   }
+  // }
   useEffect(async () => {
     let videoInputDevices;
     try {
@@ -158,7 +199,12 @@ const License = (props) => {
       }
     );
   }, []);
-
+  const handleToggle = (event, type) => {
+    if (type !== null) {
+      setViewType(type);
+    }
+  };
+  console.log("licenseData", licenseData);
   return (
     <React.Fragment>
       <Box
@@ -173,38 +219,26 @@ const License = (props) => {
               </Typography>
             </Box>
             <Grid container>
-              <Grid item xs={1}></Grid>
-              <Grid item xs={4}>
-                <Box>
-                  <RoundedButton
-                    color="secondary"
-                    size="small"
-                    fullWidth={false}
-                    label={t("License Disc")}
-                    // onClick={() => setDetailsOpen(true)}
-                  />
-                </Box>
+              <Grid xs={12}>
+                <ToggleButtonGroup
+                  color="secondary"
+                  value={viewType}
+                  exclusive={true}
+                  onChange={handleToggle}
+                >
+                  <ToggleButton color="secondary" value="license">
+                    {t("License Disk")}
+                  </ToggleButton>
+                  <ToggleButton value="vin">{t("Vin No")}</ToggleButton>
+                </ToggleButtonGroup>
               </Grid>
-              <Grid item xs={1}></Grid>
-
-              <Grid item xs={4}>
-                <Box>
-                  <RoundedButton
-                    color="secondary"
-                    size="small"
-                    fullWidth={false}
-                    label={t("Vin Number")}
-                    variant="text"
-                  />
-                </Box>
-              </Grid>
-              <Grid item xs={1}></Grid>
             </Grid>
           </Box>
         </OverlayMessageBox>
       </Box>
       <Box
         p={4}
+        mt={2}
         style={{
           display: "block",
           width: "100%",
@@ -228,7 +262,7 @@ const License = (props) => {
       </Box>
 
       <Box style={{ top: 0, left: 0 }}>
-        <OverlayWindow windowSize={24} />
+        <OverlayWindow windowSize={40} />
       </Box>
       <Box
         p={4}
@@ -236,7 +270,7 @@ const License = (props) => {
           display: "block",
           width: "100%",
           position: "absolute",
-          top: "64%",
+          top: "72%",
           zIndex: 200,
           textAlign: "center",
           color: "white",
@@ -244,50 +278,153 @@ const License = (props) => {
       >
         <Typography>{t("Move Closer to the scan area.")}</Typography>
       </Box>
-      <Dialog open={licenseData.length > 0} size="md">
+      <Dialog
+        open={licenseData.length > 0}
+        style={{ width: "100vw" }}
+        maxWidth="xl"
+        fullWidth
+      >
         <DialogTitle disableTypography="false">
-          <Typography variant="h4" style={{ textAlign: "center", padding: "8px" }}>
-            {t("Details found !")}
+          <Grid container>
+            <Grid item xs={1}>
+              <IconButton
+                variant="contained"
+                color="default"
+                style={{ backgroundColor: "#D6D6D6", borderRadius: "4px" }}
+                onClick={() => setEditable(true)}
+              >
+                <Edit />
+              </IconButton>
+            </Grid>
+            <Grid item xs={10} style={{ textAlign: "center" }}>
+              <Search style={{ fontSize: "60px" }} />
+            </Grid>
+            <Grid item xs={1}>
+              <IconButton
+                variant="contained"
+                color="default"
+                style={{ backgroundColor: "#D6D6D6", borderRadius: "4px" }}
+                onClick={handleReset}
+              >
+                <Close />
+              </IconButton>
+            </Grid>
+          </Grid>
+          <Typography
+            variant="h6"
+            style={{ textAlign: "center", padding: "8px 8px 2px 8px" }}
+          >
+            {t("Details found! Please confirm your your details")}
+          </Typography>
+          <Typography
+            variant="body1"
+            style={{ textAlign: "center", padding: "2px" }}
+          >
+            {t("Else edit and enter them manually.")}
           </Typography>
         </DialogTitle>
-        <Box p={1} m={2} textAlign="center">
-          <Typography variant="h6">{licenseData[9]}</Typography>
-          <Divider />
-          <Typography variant="body2" textAlign="center">
-            {t("Make")}
-          </Typography>
-        </Box>
-        <Box p={1} m={2} textAlign="center">
-          <Typography variant="h6">{licenseData[8]}</Typography>
-          <Divider />
-          <Typography variant="body2" textAlign="center">
-            {t("Model")}
-          </Typography>
-        </Box>
-        <Box p={1} m={2} textAlign="center">
-          <Typography variant="h6">{licenseData[6]}</Typography>
-          <Divider />
-          <Typography variant="body2" textAlign="center">
-            {t("License No")}
-          </Typography>
-        </Box>
-        <Box p={1} m={2} textAlign="center">
-          <Typography variant="h6">{licenseData[12]}</Typography>
-          <Divider />
-          <Typography variant="body2" textAlign="center">
-            {t("Vin No")}
-          </Typography>
+        <Box
+          p={2}
+          style={{
+            borderStyle: editable ? "dashed" : "none",
+            borderWidth: 1,
+            borderRadius: 8,
+            width: "80vw",
+            margin: "0 auto",
+          }}
+        >
+          <Grid container>
+            <Grid item xs={6}>
+              <Box textAlign="center">
+                <Typography variant="body2" className="label">
+                  {t("Make")}
+                </Typography>
+                {!editable && (
+                  <Typography variant="h6">{licenseData[9]}</Typography>
+                )}
+                {editable && (
+                  <TextField
+                    id="outlined-basic"
+                    // label="Outlined"
+                    variant="outlined"
+                    value={licenseData[9]}
+                    margin="dense"
+                    onChange={(e) => onEdit(9, e.target.value)}
+                  />
+                )}
+              </Box>
+            </Grid>
+            <Grid item xs={6}>
+              <Box textAlign="center">
+                <Typography variant="body2" className="label">
+                  {t("Model")}
+                </Typography>
+                {!editable && (
+                  <Typography variant="h6">{licenseData[8]}</Typography>
+                )}
+                {editable && (
+                  <TextField
+                    id="outlined-basic"
+                    // label="Outlined"
+                    variant="outlined"
+                    value={licenseData[8]}
+                    margin="dense"
+                    onChange={(e) => onEdit(8, e.target.value)}
+                  />
+                )}
+              </Box>
+            </Grid>
+          </Grid>
+          <Grid container style={{ marginTop: "16px" }}>
+            <Grid item xs={6}>
+              <Box textAlign="center">
+                <Typography variant="body2" className="label">
+                  {t("License No")}
+                </Typography>
+                {!editable && (
+                  <Typography variant="h6">{licenseData[6]}</Typography>
+                )}
+                {editable && (
+                  <TextField
+                    id="outlined-basic"
+                    // label="Outlined"
+                    variant="outlined"
+                    value={licenseData[6]}
+                    margin="dense"
+                    onChange={(e) => onEdit(6, e.target.value)}
+                  />
+                )}
+              </Box>
+            </Grid>
+            <Grid item xs={6}>
+              <Box textAlign="center">
+                <Typography variant="body2" className="label">
+                  {t("Vin No")}
+                </Typography>
+                {!editable && (
+                  <Typography variant="h6">{licenseData[12]}</Typography>
+                )}
+                {editable && (
+                  <TextField
+                    id="outlined-basic"
+                    // label="Outlined"
+                    variant="outlined"
+                    value={licenseData[12]}
+                    margin="dense"
+                    onChange={(e) => onEdit(12, e.target.value)}
+                  />
+                )}
+              </Box>
+            </Grid>
+          </Grid>
         </Box>
         <DialogActions>
-          <RoundedButton
-            label={"Retake"}
-            color="tertiary"
-            onClick={handleReset}
-          ></RoundedButton>
-          <RoundedButton
-            label={t("Confirm")}
-            onClick={handleClicked}
-          ></RoundedButton>
+          <Box mb={1} style={{ width: "50vw", margin: "32px auto" }}>
+            <RoundedButton
+              label={t("Confirm")}
+              onClick={handleClicked}
+            ></RoundedButton>
+          </Box>
         </DialogActions>
       </Dialog>
     </React.Fragment>

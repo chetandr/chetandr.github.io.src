@@ -19,9 +19,9 @@ import UpdateAssessmentType$ from "../../../../APIConfig/UpdateAssessmentType";
 import Alert from "@material-ui/lab/Alert";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-
+import InputMask from "react-input-mask";
 import { makeStyles } from "@material-ui/core/styles";
-
+import WaitingStatus from "../../../../Stores/WaitingStatus";
 const useStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -31,7 +31,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = (props) => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const [checked, setChecked] = React.useState(false);
   const [companyData, setCompanyData] = React.useState(null);
   const [fieldOne, setFieldOne] = React.useState(null);
@@ -62,28 +61,22 @@ const Login = (props) => {
       errors.push(t("Enter the Contact number"));
     }
 
-    // If the terms and conditions are not checked, Register an error
-    if (!checked) {
-      errors.push(
-        t("Agree to the terms and coditions by selecting the checkbox below")
-      );
-    }
 
     if (!errors.length) {
       // If there are no errors
       // Fetch the assessment ID and execute the Update the assessment id with the default type as pre inspection.
-      if(props.toggleWaiting) {
-        props.toggleWaiting()
-      }
-      AssessmentId$(9994, fieldOne).subscribe((response) =>
+      // if (props.toggleWaiting) {
+      //   props.toggleWaiting();
+      // }
+      AssessmentId$(companyData.otp, fieldOne).subscribe((response) =>
         UpdateAssessmentType$(
-          9994,
+          companyData.otp,
           response.data.assessment_id,
           "b04d837c-3539-430e-b9ae-159dcbe1e96b"
         ).subscribe(() => {
-          if(props.toggleWaiting) {
-            props.toggleWaiting()
-          }
+          // if (props.toggleWaiting) {
+          //   props.toggleWaiting();
+          // }
           props.nextAction(response.data);
         })
       );
@@ -95,63 +88,38 @@ const Login = (props) => {
       swipeButton.current.reset();
     }
   };
-  console.log(companyData?.logo_thumbnail_file_path);
   return (
     <React.Fragment>
-      
-      {companyData !== null && <Logo imageURL={companyData?.logo_thumbnail_file_path} />}
+      {companyData !== null && (
+        <Logo imageURL={companyData?.logo_thumbnail_file_path} />
+      )}
 
       <Box pt={2} px={4}>
-        <Typography style={{ textAlign: "center" }}>
+        <Typography variant="h6" className="text">
           {t("welcome", {
             company_name:
               companyData !== null ? companyData.company_name : "our Shop",
           })}
         </Typography>
+        <Typography variant="body1" className="label">
+          {t("Let is begin by assessing your vehicle. Let's get started")}
+        </Typography>
       </Box>
-      <Box pt={2} px={4}>
-        <TextField
-          id="standard-full-width"
-          placeholder={t("Enter Your Contact Number")}
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          onChange={(e) => setFieldOne(e.target.value)}
-          InputProps={{
-            style: { borderRadius: "28px" },
+      <Box pt={2} px={4} style={{ width: "55vw", margin: "0 auto" }}>
+        <InputMask
+          mask="9 9999 9999 9999"
+          className="iDInput"
+          maskChar={null}
+          onChange={(e) => {
+            // console.log("ID", e.target.value);
+            setFieldOne(e.target.value);
           }}
         />
+        <Typography variant="body1" className="label">
+          {t("Enter your South African ID Number")}
+        </Typography>
       </Box>
-      <Box pt={4} pl={4}>
-        <FormGroup>
-          <FormLabel>
-            <Checkbox
-              color="primary"
-              checked={checked}
-              onChange={handleChange}
-              name="Agreed"
-              style={{ float: "left" }}
-            />
-            <Typography variant="caption">
-              {t("I have read, understood and agreed with your")}{" "}
-              <Typography
-                color="primary"
-                variant="caption"
-                style={{ cursor: "pointer", display: "inline-block" }}
-                onClick={() => setOpenTermsAndConditions(true)}
-              >
-                {" "}
-                {t("Terms and Conditions")}
-              </Typography>
-            </Typography>
-          </FormLabel>
-        </FormGroup>
-      </Box>
-
-      <Box p={2}>
-        <Car />
-      </Box>
-      <Box pt={4} px={4}>
+      <Box pt={4} px={4} className="swipe-button">
         <ReactSwipeButton
           text={t("Swipe to Login")}
           color="#EDA03A"

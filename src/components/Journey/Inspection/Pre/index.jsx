@@ -13,13 +13,13 @@ import PhotoCameraRounded from "@material-ui/icons/PhotoCameraRounded";
 import CaptureIcon from "../../../CaptureIcon";
 import CaptureButton from "../../../CaptureButton";
 import { useTranslation } from "react-i18next";
-import captureState from "../../../../states/captureState";
+import CaptureStore from "../../../../Stores/CaptureStore";
 import startCase from "lodash/startCase";
 const Pre = (props) => {
   const { t } = useTranslation();
   const [showOverlay, setShowOverlay] = React.useState(true);
   const [resetRnd, setResetRnd] = React.useState(true);
-  const [mediaCaptureState, setMediaCaptureState] = React.useState('INIT');
+  const [mediaCaptureStore, setMediaCaptureStore] = React.useState('INIT');
   const toggleOverlay = () => {
     setShowOverlay(!showOverlay);
   };
@@ -31,10 +31,10 @@ const Pre = (props) => {
   const reset = () => {
     setResetRnd(false);
   };
-  console.log("mediaCaptureState", mediaCaptureState);
-  captureState.subscribe((state) => {
-    console.log("mediaCaptureState", state, mediaCaptureState);
-    setMediaCaptureState(state);
+  console.log("mediaCaptureStore", mediaCaptureStore);
+  CaptureStore.subscribe((state) => {
+    console.log("mediaCaptureStore", state, mediaCaptureStore);
+    setMediaCaptureStore(state);
   });
 
   return (
@@ -51,7 +51,7 @@ const Pre = (props) => {
           color: "white",
         }}
       >
-        {mediaCaptureState === "INIT" &&<Typography> {t("capture", { side: startCase(t(props.side).toLowerCase()) })}</Typography>}
+        {mediaCaptureStore === "INIT" &&<Typography> {t("capture", { side: startCase(t(props.side).toLowerCase()) })}</Typography>}
       </Box>
 
       <MediaStreamWithDnD
@@ -77,7 +77,7 @@ const Pre = (props) => {
           color: "white",
         }}
       >
-        {mediaCaptureState === "INIT" && <OverlayImage image={props.overlayImage} width={props.overlayImageSize || "50%"} />}
+        {mediaCaptureStore === "INIT" && <OverlayImage image={props.overlayImage} width={props.overlayImageSize || "50%"} />}
       </Box>
     </React.Fragment>
   );

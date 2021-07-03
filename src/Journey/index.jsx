@@ -2,7 +2,7 @@ import React from "react";
 
 import * as JourneyModule from "../components/Journey";
 
-import { mockJourney } from "../mockconfig/journey1";
+import { quoteJourney as journeyData } from "../mockconfig/quote";
 
 import CSAItheme from "../Theme";
 import Container from "@material-ui/core/Container";
@@ -20,10 +20,9 @@ import CarDataContext from "../CarDataContext";
 import ErrorBoundary from "../components/ErrorBoundary";
 import geoLocation from "../utils/geoLocation";
 import { makeStyles } from "@material-ui/core/styles";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Backdrop from "@material-ui/core/Backdrop";
-import captureState from "../states/captureState";
-import carDataStore from "../states/carDataStore";
+import CaptureStore from "../Stores/CaptureStore";
+import CarDataStore from "../Stores/CarDataStore";
+import CompanyStore from "../Stores/CompanyStore";
 import { useEffect } from "react";
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -33,9 +32,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const getCurrentAndNext = (type, sub, step) => {
-  // findIndex(mockJourney, (mj:StepData) => mj.type === type && mj.step == step);
+  // findIndex(journeyData, (mj:StepData) => mj.type === type && mj.step == step);
   // debugger;
-  const currentIndex = findIndex(mockJourney, (mj) => {
+  const currentIndex = findIndex(journeyData, (mj) => {
     if (mj.step) {
       return (
         mj.type.toLowerCase() === type.toLowerCase() &&
@@ -50,46 +49,54 @@ const getCurrentAndNext = (type, sub, step) => {
     }
   });
   const prevIndex = currentIndex - 1;
-  const nextIndex = currentIndex === mockJourney.length - 1 ? 0 : currentIndex + 1;
+  const nextIndex =
+    currentIndex === journeyData.length - 1 ? 0 : currentIndex + 1;
   return { prevIndex, currentIndex, nextIndex };
 };
 
 const Journey = () => {
   console.log("JOURNEYSTART");
   const container = React.useRef();
-  const classes = useStyles();
   const [carData, setCarData] = React.useState({});
   let { type, sub, step } = useParams();
+  const [whiteLabel, setWhiteLabel] = React.useState(null);
 
   const [waiting, setWaiting] = React.useState(false);
-  const [mediaCaptureState, setMediaCaptureState] = React.useState(null);
-  captureState.subscribe((state) => {
-    console.log("mediaCaptureState", state, mediaCaptureState);
-    setMediaCaptureState(state);
+  const [mediaCaptureStore, setMediaCaptureStore] = React.useState(null);
+  CaptureStore.subscribe((state) => {
+    console.log("mediaCaptureStore", state, mediaCaptureStore);
+    setMediaCaptureStore(state);
   });
   if (!type && !sub) {
-    type = mockJourney[0].type;
-    sub = mockJourney[0].sub;
-    step = mockJourney[0].step;
+    type = journeyData[0].type;
+    sub = journeyData[0].sub;
+    step = journeyData[0].step;
   }
+  // get the theme from company Settings.
+  CompanyStore.subscribe((companyData) => {
+    console.log("CSAItheme", companyData.themes, whiteLabel);
+    if (whiteLabel === null && companyData.themes !== null) {
+      setWhiteLabel(companyData.themes);
+    }
+  });
   console.log("ACTIONS", type, sub, step);
   const { currentIndex, nextIndex } = getCurrentAndNext(type, sub, step);
   // For the root route i.e "/" load the first type and step
   useEffect(() => {
-    carDataStore.subscribe(data => setCarData(data));
-  },[])
+    CarDataStore.subscribe((data) => setCarData(data));
+  }, []);
   // Method called when the next action is to be laoded
   const nextAction = (data) => {
-    captureState.next("INIT");
+    CaptureStore.next("INIT");
 
-    let href = `/journey/${mockJourney[nextIndex].type}/${mockJourney[nextIndex].sub}`;
-    if (mockJourney[nextIndex].step) {
-      href += `/${mockJourney[nextIndex].step}`;
+    let href = `/journey/${journeyData[nextIndex].type}/${journeyData[nextIndex].sub}`;
+    if (journeyData[nextIndex].step) {
+      href += `/${journeyData[nextIndex].step}`;
     }
     let storeKey = sub.toLowerCase();
     if (data) {
       let newCarData = { ...carData };
-      if(!newCarData[sub]) {
+      if (!newCarData[sub]) {
         newCarData[sub] = {};
       }
       if (step) {
@@ -97,13 +104,13 @@ const Journey = () => {
       } else {
         newCarData[sub] = data;
       }
-      console.log("newSubData", newCarData)
+      console.log("newSubData", newCarData);
       setCarData(newCarData);
       sessionStorage.setItem("carData", JSON.stringify(newCarData));
     }
 
-    console.log("nextAction", mockJourney[nextIndex].type.toLowerCase());
-    // if (mockJourney[nextIndex].type.toLowerCase() === 'inspection') {
+    console.log("nextAction", journeyData[nextIndex].type.toLowerCase());
+    // if (journeyData[nextIndex].type.toLowerCase() === 'inspection') {
     // 	setIsFullscreen();
     // } else {
     // 	exitFullscreen();
@@ -126,8 +133,8 @@ const Journey = () => {
         {
           nextAction,
           toggleWaiting,
-          mediaCaptureState,
-          ...mockJourney[currentIndex],
+          mediaCaptureStore,
+          ...journeyData[currentIndex],
         }
       );
       Component.push(newComponent);
@@ -135,29 +142,9 @@ const Journey = () => {
     return Component;
   };
 
-  // try {
-  // 	[isFullscreen, setIsFullscreen, exitFullscreen] = useFullscreen(container);
-  // } catch (e) {
-  // 	console.log('Fullscreen not supported');
-  // 	isFullscreen = false;
-  // 	setIsFullscreen = undefined;
-  // }
   const history = useHistory();
-  const Loader = () => (
-    <Box>
-      <Backdrop className={classes.backdrop} open={waiting}>
-        <CircularProgress color="inherit" thickness={4} size={60} />
-        <img
-          src="/carScan_icon.png"
-          width="40px"
-          style={{ marginLeft: "-50px" }}
-          alt="CarScan"
-        />
-      </Backdrop>
-    </Box>
-  );
 
-  if (mockJourney[currentIndex].step === "license") {
+  if (journeyData[currentIndex] && journeyData[currentIndex].step === "license") {
     if (!carData.geoLocation) {
       geoLocation().then((geoData) => {
         setCarData({ ...carData, geoLocation: geoData });
@@ -165,17 +152,42 @@ const Journey = () => {
       });
     }
   }
-  const currentAction = mockJourney[currentIndex];
-  if (type && sub) {
+  console.log("TYPE", type, sub, whiteLabel);
+  const currentAction = journeyData[currentIndex];
+  if (type && sub && currentAction) {
     return (
       <React.Fragment>
         <CssBaseline />
-        <MuiThemeProvider theme={CSAItheme}>
+        {whiteLabel !== null ? (
+          <MuiThemeProvider theme={CSAItheme(whiteLabel)}>
+            <CarDataContext.Provider value={carData}>
+              {currentAction.container ? (
+                <Container>
+                  <ErrorBoundary>
+                    {type && sub && getComposed({ type, sub, step })}
+                  </ErrorBoundary>
+                </Container>
+              ) : (
+                type &&
+                sub && (
+                  <ErrorBoundary>
+                    <Box ref={container}>
+                      {getComposed({
+                        type,
+                        sub,
+                        step,
+                      })}
+                    </Box>
+                  </ErrorBoundary>
+                )
+              )}
+            </CarDataContext.Provider>
+          </MuiThemeProvider>
+        ) : (
           <CarDataContext.Provider value={carData}>
             {currentAction.container ? (
               <Container>
                 <ErrorBoundary>
-                  {Loader()}
                   {type && sub && getComposed({ type, sub, step })}
                 </ErrorBoundary>
               </Container>
@@ -183,7 +195,6 @@ const Journey = () => {
               type &&
               sub && (
                 <ErrorBoundary>
-                  {Loader()}
                   <Box ref={container}>
                     {getComposed({
                       type,
@@ -195,7 +206,7 @@ const Journey = () => {
               )
             )}
           </CarDataContext.Provider>
-        </MuiThemeProvider>
+        )}
       </React.Fragment>
     );
   } else {

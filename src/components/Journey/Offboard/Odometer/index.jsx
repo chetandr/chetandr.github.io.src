@@ -11,7 +11,7 @@ import GeneratePresignedUrl$ from "../../../../APIConfig/GeneratePresignedUrl";
 import UploadImageToS3$ from "../../../../APIConfig/UploadImageToS3";
 import UpdateImageFileMetaDataBarcode$ from "../../../../APIConfig/UpdateImageFileMetaDataBarcode";
 import CarDataContext from "../../../../CarDataContext";
-import captureState from "../../../../states/captureState";
+import CaptureStore from "../../../../Stores/CaptureStore";
 import { useTranslation } from "react-i18next";
 import {
   BrowserMultiFormatReader,
@@ -52,7 +52,7 @@ const Odometer = (props) => {
     };
   }
   useEffect(() => {
-    captureState.subscribe((state) => setStage(state));
+    CaptureStore.subscribe((state) => setStage(state));
   }, []);
   console.log("STAGE", stage);
   return (

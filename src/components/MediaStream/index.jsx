@@ -14,7 +14,7 @@ import CarDataContext from "../../CarDataContext";
 import RoundedButton from "../RoundedButton";
 import { useTranslation } from "react-i18next";
 import Box from "@material-ui/core/Box";
-import captureState from "../../states/captureState";
+import CaptureStore from "../../Stores/CaptureStore";
 // import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import { IconButton } from "@material-ui/core";
 const ItemTypes = {
@@ -54,7 +54,7 @@ const MediaStream = (props) => {
       geoLocation: JSON.parse(sessionStorage.getItem("geoLocation")),
     };
   }
-  captureState.subscribe((state) => {
+  CaptureStore.subscribe((state) => {
     console.log("Capture Stage", state);
     setStage(state);
   });
@@ -369,7 +369,7 @@ const MediaStream = (props) => {
       props.toggleOverlay();
     }
     setStage("CAPTURED");
-    captureState.next("CAPTURED");
+    CaptureStore.next("CAPTURED");
     // ctx.drawImage(vi)
     // ctx.lineWidth = "2";
 
@@ -440,7 +440,7 @@ const MediaStream = (props) => {
     imageRef.current.style.display = "none";
     // imageCanvasRef.current.style.display = "none";
     videoRef.current.play();
-    captureState.next("INIT");
+    CaptureStore.next("INIT");
     setStage("INIT");
   };
   console.log("STAGE", stage);

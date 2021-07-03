@@ -9,7 +9,7 @@ const OverlayWindow = (props) => {
           item
           xs={12}
           className="translucent"
-          style={{ height: `${(100 - props.windowSize) / 2}%` }}
+          style={{ height: `${((100 - props.windowSize) / 2) + 5}%` }}
         ></Grid>
         <Grid item xs={12} style={{ height: `${props.windowSize}%` }}>
           <Grid container style={{ height: "100%" }}>

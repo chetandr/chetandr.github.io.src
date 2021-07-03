@@ -8,7 +8,7 @@ const TheUnlimited = (props) => {
 			<img
 				src={props.imageURL}
 				alt={props.alt}
-				style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block', width: '80vw' }}
+				style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block', height: '10vh' }}
 			></img>
 		</Box>
 	);
