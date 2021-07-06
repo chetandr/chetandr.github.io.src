@@ -39,10 +39,18 @@ const CSAItheme = (tokens) => {
           borderTopRightRadius: "16px",
         },
       },
+      MuiToggleButtonGroup : {
+        root : {
+          width : "80%",
+        }
+      },
       MuiToggleButton: {
         root: {
           backgroundColor: "rgb(255,255,255,.3)",
           color: "#fff",
+          padding: "1vw",
+          width : "50%",
+          lineHeight: "1",
           "&:hover": {
             backgroundColor: "rgb(255,255,255,0.5)",
             color: "#fff",

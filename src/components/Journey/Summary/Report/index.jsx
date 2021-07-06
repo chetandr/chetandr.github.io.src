@@ -13,9 +13,14 @@ import { DialogTitle } from "@material-ui/core";
 import { Dialog, DialogActions, DialogContent } from "@material-ui/core";
 import CarDataContext from "../../../../CarDataContext";
 import { useContext } from "react";
+import { quoteJourney as journeyData } from "../../../../mockconfig/quote";
 import FinalAsessmentSubmission$ from "../../../../APIConfig/FinalAsessmentSubmission";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
+import AssessmentTypeStore$ from "../../../../Stores/AssessmentTypeStore";
+import find from "lodash/find";
+import startCase from "lodash/startCase";
+
 const StyledPaper = styled(Paper)({
   margin: "16px 8px 16px 8px",
   borderRadius: "16px",
@@ -29,13 +34,15 @@ const StyledCard = styled(Card)({
 const Report = (props) => {
   const { t } = useTranslation();
   let carData = useContext(CarDataContext);
+  const [assessmentType, setAssessmentType] = React.useState(null);
   const history = useHistory();
+  const [ackOpen, setAckOpen] = React.useState(false);
+
   if (!Object.keys(carData).length) {
     carData = JSON.parse(sessionStorage.getItem("carData"));
   }
 
-  console.log("carData", carData);
-  const [ackOpen, setAckOpen] = React.useState(false);
+  console.log("carData", assessmentType, carData);
 
   const onSubmit = () => {
     if (props.toggleWaiting) {
@@ -56,6 +63,29 @@ const Report = (props) => {
       props.nextAction();
     }
   };
+
+  AssessmentTypeStore$.subscribe((at) => {
+    if (at !== null && assessmentType === null) {
+      console.log("carData at", at, assessmentType);
+      setAssessmentType(at);
+    }
+  });
+  let keys;
+  if (carData && assessmentType) {
+    console.log("Keys", Object.keys(carData[assessmentType]));
+    keys = Object.keys(carData[assessmentType]);
+  }
+  console.log("DATA", journeyData)
+
+  const getName = (step) => {
+    const data = find(journeyData, (jd) => {
+      console.log("DT", jd);
+      return jd.step && (jd.step.toLowerCase() === step.toLowerCase())
+    });
+    console.log("DATA",step, data.side, journeyData)
+    return startCase(data.side.toLowerCase());
+    //return data.side;
+  };
   return (
     <Box>
       <Typography variant="h4" className="label">
@@ -69,58 +99,103 @@ const Report = (props) => {
           {new Intl.DateTimeFormat("en-ZA").format(new Date())}
         </Typography>
       </Box>
-
-      <Box my={2}>
-      <Grid container spacing={1}>
-        <Grid item xs={4}>
-          <Box p={2}>
-            <Typography variant="body2" className="label">
-              {t("Make")}
-            </Typography>
-            <Typography variant="body1" className="text">
-              {carData.license[9]}
-            </Typography>
-          </Box>
+      {keys && (
+        <Box>
+          <Typography variant="body1" className="text">
+            {t("Tap the images of damaged parts")}
+          </Typography>
+          <Grid container spacing={0}>
+            {/* {keys &&
+              keys.map((key) => {
+                <Grid item xs={3}>
+                  <StyledPaper>
+                    <CardMedia
+                      component="img"
+                      alt={key}
+                      height="100%"
+                      image={carData[assessmentType][key].thumbnail}
+                      title={key}
+                    />
+                    <CardContent style={{ padding: "4px" }}>
+                      <Typography variant="body1" className="text">
+                        {key}
+                      </Typography>
+                    </CardContent>
+                  </StyledPaper>
+                </Grid>;
+              })} */}
+            {keys.map((k) => (
+              <Grid item xs={3}>
+                <StyledPaper>
+                  <CardMedia
+                    component="img"
+                    alt={getName(k)}
+                    height="100%"
+                    image={carData[assessmentType][k].thumbnail}
+                    title={getName(k)}
+                  />
+                  <CardContent style={{ padding: "4px" }}>
+                    <Typography variant="body1" className="text">
+                      {getName(k)}
+                    </Typography>
+                  </CardContent>
+                </StyledPaper>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
+      {/* <Box my={2}>
+        <Grid container spacing={1}>
+          <Grid item xs={4}>
+            <Box p={2}>
+              <Typography variant="body2" className="label">
+                {t("Make")}
+              </Typography>
+              <Typography variant="body1" className="text">
+                {carData.license[9]}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={4}>
+            <Box p={2}>
+              <Typography variant="body2" className="label">
+                {t("Model")}
+              </Typography>
+              <Typography variant="body1" className="text">
+                {carData.license[8]}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={4}>
+            <Box p={2}>
+              <Typography variant="body2" className="label">
+                {t("License Plate")}
+              </Typography>
+              <Typography variant="body1" className="text">
+                {carData.license[6]}
+              </Typography>
+            </Box>
+          </Grid>
         </Grid>
-        <Grid item xs={4}>
-          <Box p={2}>
-            <Typography variant="body2" className="label">
-              {t("Model")}
-            </Typography>
-            <Typography variant="body1" className="text">
-              {carData.license[8]}
-            </Typography>
-          </Box>
+        <Grid container spacing={1}>
+          <Grid item xs={4}>
+            <Box p={2}>
+              <Typography variant="body2" className="label">
+                {t("Vin Number")}
+              </Typography>
+              <Typography variant="body1" className="text">
+                {carData.license[12]}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={4}></Grid>
         </Grid>
-        <Grid item xs={4}>
-          <Box p={2}>
-            <Typography variant="body2" className="label">
-              {t("License Plate")}
-            </Typography>
-            <Typography variant="body1" className="text">
-              {carData.license[6]}
-            </Typography>
-          </Box>
-        </Grid>
-      </Grid>
-      <Grid container spacing={1}>
-        <Grid item xs={4}>
-          <Box p={2}>
-            <Typography variant="body2" className="label">
-              {t("Vin Number")}
-            </Typography>
-            <Typography variant="body1" className="text">
-              {carData.license[12]}
-            </Typography>
-          </Box>
-        </Grid>
-        <Grid item xs={4}></Grid>
-      </Grid>
-      </Box>
-      <Typography variant="body1" className="text">
+      </Box> */}
+      {/* <Typography variant="body1" className="text">
         {t("Tap the images of damaged parts")}
-      </Typography>
-      <Grid container spacing={0}>
+      </Typography> */}
+      {/* <Grid container spacing={0}>
         <Grid item xs={3}>
           <StyledPaper>
             <CardMedia
@@ -130,7 +205,7 @@ const Report = (props) => {
               image={carData.pre.front.thumbnail}
               title="Front Side"
             />
-            <CardContent style={{padding: '4px'}}>
+            <CardContent style={{ padding: "4px" }}>
               <Typography variant="body1" className="text">
                 Front Side
               </Typography>
@@ -146,7 +221,7 @@ const Report = (props) => {
               image={carData.pre.passengerside.thumbnail}
               title="Passenger Side"
             />
-            <CardContent style={{padding: '4px'}}>
+            <CardContent style={{ padding: "4px" }}>
               <Typography variant="body1" className="text">
                 Passenger Side
               </Typography>
@@ -162,7 +237,7 @@ const Report = (props) => {
               image={carData.pre.rear.thumbnail}
               title="Rear Side"
             />
-            <CardContent style={{padding: '4px'}}>
+            <CardContent style={{ padding: "4px" }}>
               <Typography variant="body1" className="text">
                 Rear Side
               </Typography>
@@ -178,14 +253,14 @@ const Report = (props) => {
               image={carData.pre.driverside.thumbnail}
               title="Driver Side"
             />
-            <CardContent style={{padding: '4px'}}>
+            <CardContent style={{ padding: "4px" }}>
               <Typography variant="body1" className="text">
                 Driver Side
               </Typography>
             </CardContent>
           </StyledPaper>
         </Grid>
-      </Grid>
+      </Grid> */}
       {/* </StyledCard> */}
       <Box p={1} m={2} textAlign="right">
         <RoundedButton label="Submit" fullWidth={false} onClick={onSubmit} />

@@ -35,8 +35,18 @@ const Inspectiontype = (props) => {
         break;
     }
   };
+  const getAssessmentType = (assessmentType) => {
+    switch (assessmentType) {
+      case "PRE_INSPECTION":
+        return "Pre";
+        break;
+      case "CLAIM_SUBMISSION":
+        return "Claim";
+        break;
+    }
+  };
   const handleClick = (assessmentType) => {
-    AssessmentTypeStore.next(assessmentType);
+    AssessmentTypeStore.next(getAssessmentType(assessmentType.type));
     if (props.nextAction) {
       props.nextAction();
     }

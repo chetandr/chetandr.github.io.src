@@ -3,13 +3,13 @@ import Box from "@material-ui/core/Box";
 
 const OverlayMessageBox = Styled(Box)({
   position: "relative",
-  padding: 16,
+  padding: '1vw',
   width: "100%",
   textAlign: "center",
   color: "#fff",
   zIndex: 210,
   backgroundColor: "rgb(0,0,0, .5)",
-  maxSize: "640px",
+  // maxSize: "640px",
   borderRadius: "8px",
 });
 

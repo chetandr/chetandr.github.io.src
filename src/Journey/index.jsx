@@ -13,6 +13,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import Box from "@material-ui/core/Box";
 import findIndex from "lodash/findIndex";
 import startCase from "lodash/startCase";
+import replace from "lodash/replace";
 // import { useRouter } from 'next/router';
 import { useParams, useHistory } from "react-router-dom";
 // import useFullscreen from '../utils/useFullScreen';
@@ -23,7 +24,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import CaptureStore from "../Stores/CaptureStore";
 import CarDataStore from "../Stores/CarDataStore";
 import CompanyStore from "../Stores/CompanyStore";
+// import SelectedCarParts$ from "../Stores/SelectedCarParts";
 import { useEffect } from "react";
+import AssessmentTypeStore$ from "../Stores/AssessmentTypeStore";
+import SelectedCarParts$ from "../Stores/SelectedCarParts";
 const useStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -34,6 +38,7 @@ const useStyles = makeStyles((theme) => ({
 const getCurrentAndNext = (type, sub, step) => {
   // findIndex(journeyData, (mj:StepData) => mj.type === type && mj.step == step);
   // debugger;
+
   const currentIndex = findIndex(journeyData, (mj) => {
     if (mj.step) {
       return (
@@ -59,19 +64,29 @@ const Journey = () => {
   const container = React.useRef();
   const [carData, setCarData] = React.useState({});
   let { type, sub, step } = useParams();
+  // const [assessmentType, setAssessmentType] = React.useState(null);
+  const [selectedCarParts, setSelectedCarParts] = React.useState(null);
   const [whiteLabel, setWhiteLabel] = React.useState(null);
-
   const [waiting, setWaiting] = React.useState(false);
   const [mediaCaptureStore, setMediaCaptureStore] = React.useState(null);
+
+  // AssessmentTypeStore$.subscribe((at) => {
+  //   if (at !== null && assessmentType == null) {
+  //     setAssessmentType(at);
+  //   }
+  // });
+
+  SelectedCarParts$.subscribe((scp) => {
+    if (scp !== null && selectedCarParts == null) {
+      setSelectedCarParts(scp);
+    }
+  });
+
   CaptureStore.subscribe((state) => {
     console.log("mediaCaptureStore", state, mediaCaptureStore);
     setMediaCaptureStore(state);
   });
-  if (!type && !sub) {
-    type = journeyData[0].type;
-    sub = journeyData[0].sub;
-    step = journeyData[0].step;
-  }
+
   // get the theme from company Settings.
   CompanyStore.subscribe((companyData) => {
     console.log("CSAItheme", companyData.themes, whiteLabel);
@@ -79,19 +94,51 @@ const Journey = () => {
       setWhiteLabel(companyData.themes);
     }
   });
+
+  // Initial load
+  if (!type && !sub) {
+    type = journeyData[0].type;
+    sub = journeyData[0].sub;
+    step = journeyData[0].step;
+  }
+  const getFormatedStep = (assessmentType, step) => {
+    return `${assessmentType.toLowerCase()}-${startCase(
+      replace(step.toLowerCase(), /\s/g, "")
+    )}`;
+  };
   console.log("ACTIONS", type, sub, step);
   const { currentIndex, nextIndex } = getCurrentAndNext(type, sub, step);
-  // For the root route i.e "/" load the first type and step
-  useEffect(() => {
-    CarDataStore.subscribe((data) => setCarData(data));
-  }, []);
-  // Method called when the next action is to be laoded
+  // Method called when the next action is to be loaded
   const nextAction = (data) => {
     CaptureStore.next("INIT");
-
     let href = `/journey/${journeyData[nextIndex].type}/${journeyData[nextIndex].sub}`;
-    if (journeyData[nextIndex].step) {
-      href += `/${journeyData[nextIndex].step}`;
+    if (journeyData[nextIndex].sub === "Claim" || journeyData[currentIndex].sub === "Claim") {
+      AssessmentTypeStore$.subscribe((assessmentType) => {
+        console.log("assessmentType", assessmentType);
+
+        SelectedCarParts$.subscribe((carParts) => {
+          let currentStepIndex = 0;
+          carParts.selections.forEach((selection, index) => {
+            if (step && step === getFormatedStep(carParts.section, selection)) {
+              currentStepIndex = index;
+            }
+          });
+          const nextStepIndex = step ? currentStepIndex + 1 : 0;
+          if (nextStepIndex <= carParts.selections.length - 1) {
+            let nextStep = carParts.selections[nextStepIndex];
+            if (nextStep) {
+              let newStep = getFormatedStep(carParts.section, nextStep);
+              step = newStep;
+              href = `/journey/Inspection/Claim/${newStep}`;
+              console.log("assessmentType", href, newStep);
+            } 
+          } else {
+            if (journeyData[nextIndex].step) {
+              href += `/${journeyData[nextIndex].step}`;
+            }
+          }
+        });
+      });
     }
     let storeKey = sub.toLowerCase();
     if (data) {
@@ -108,7 +155,6 @@ const Journey = () => {
       setCarData(newCarData);
       sessionStorage.setItem("carData", JSON.stringify(newCarData));
     }
-
     console.log("nextAction", journeyData[nextIndex].type.toLowerCase());
     // if (journeyData[nextIndex].type.toLowerCase() === 'inspection') {
     // 	setIsFullscreen();
@@ -135,6 +181,7 @@ const Journey = () => {
           toggleWaiting,
           mediaCaptureStore,
           ...journeyData[currentIndex],
+          side: step
         }
       );
       Component.push(newComponent);
@@ -144,7 +191,10 @@ const Journey = () => {
 
   const history = useHistory();
 
-  if (journeyData[currentIndex] && journeyData[currentIndex].step === "license") {
+  if (
+    journeyData[currentIndex] &&
+    journeyData[currentIndex].step === "license"
+  ) {
     if (!carData.geoLocation) {
       geoLocation().then((geoData) => {
         setCarData({ ...carData, geoLocation: geoData });
@@ -152,8 +202,15 @@ const Journey = () => {
       });
     }
   }
-  console.log("TYPE", type, sub, whiteLabel);
   const currentAction = journeyData[currentIndex];
+  console.log(
+    "TYPE",
+    type,
+    sub,
+    whiteLabel,
+    type && sub && currentAction,
+    currentAction
+  );
   if (type && sub && currentAction) {
     return (
       <React.Fragment>
@@ -210,7 +267,11 @@ const Journey = () => {
       </React.Fragment>
     );
   } else {
-    return <LinearProgress />;
+    return (
+      <LinearProgress color="secondary">
+        {JSON.stringify(type && sub && currentAction)}
+      </LinearProgress>
+    );
   }
 };
 

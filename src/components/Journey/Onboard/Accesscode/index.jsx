@@ -32,6 +32,7 @@ const Accesscode = (props) => {
   const [otpValue, setOtpValue] = React.useState([]);
   const [hasError, setHasError] = React.useState(false);
   const onChange = (otp) => {
+    console.log("OTP",otp);
     setOtpValue(otp);
     if (otp.length === 4) {
       OTPStore.next(otp);
@@ -41,7 +42,7 @@ const Accesscode = (props) => {
   ErrorStore.subscribe((data) => setHasError(true));
 
   CompanyStore.subscribe((data) => {
-    console.log("CompanyStore", data);
+    console.log("CompanyStore", data, props.nextAction);
     if (props.nextAction && data !== null) {
       props.nextAction({ otp: otpValue, company: data });
     }
