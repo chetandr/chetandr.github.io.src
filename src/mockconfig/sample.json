@@ -1,0 +1,413 @@
+[
+  {
+    "_id": "60b88434301e594fdbca01a9",
+    "area": "DRIVER_SIDE",
+    "label": "Driver Side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01aa",
+    "area": "DRIVER_SIDE",
+    "subArea": "FENDER",
+    "label": "Fender Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01ab",
+    "area": "DRIVER_SIDE",
+    "subArea": "FRONT_DOOR",
+    "label": "Front Door Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01ac",
+    "area": "DRIVER_SIDE",
+    "subArea": "FRONT_WHEEL",
+    "label": "Front Wheel Driver Side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01ad",
+    "area": "DRIVER_SIDE",
+    "subArea": "MIRROR",
+    "label": "Side Mirror Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01ae",
+    "area": "DRIVER_SIDE",
+    "subArea": "QUATER",
+    "label": "Quater Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01af",
+    "area": "DRIVER_SIDE",
+    "subArea": "REAR_DOOR",
+    "label": "Rear Door Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b0",
+    "area": "DRIVER_SIDE",
+    "subArea": "REAR_WHEEL",
+    "label": "Rear Wheel Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b1",
+    "area": "DRIVER_SIDE",
+    "subArea": "ROCKER_PANEL",
+    "label": "Rocker Panel Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b2",
+    "area": "DRIVER_SIDE",
+    "subArea": "UPPER_QUATER",
+    "label": "Upper Quater Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b3",
+    "area": "FRONT",
+    "label": "Front",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b4",
+    "area": "FRONT",
+    "subArea": "BONNET",
+    "label": "Front Bonnet",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b5",
+    "area": "FRONT",
+    "subArea": "DRIVER_SIDE_BUMPER",
+    "label": "Front Bumper Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b6",
+    "area": "FRONT",
+    "subArea": "DRIVER_SIDE_HEAD_LIGHT",
+    "label": "Head light Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b7",
+    "area": "FRONT",
+    "subArea": "GRILL",
+    "label": "Grill/ Radiator",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b8",
+    "area": "FRONT",
+    "subArea": "PASSENGER_SIDE_BUMPER",
+    "label": "Front Bumper Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01b9",
+    "area": "FRONT",
+    "subArea": "PASSENGER_SIDE_HEAD_LIGHT",
+    "label": "Head light Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01ba",
+    "area": "FRONT",
+    "subArea": "WIND_SCREEN",
+    "label": "Top Windscreen",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01bb",
+    "area": "PASSENGER_SIDE",
+    "label": "Passenger Side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01bc",
+    "area": "PASSENGER_SIDE",
+    "subArea": "FENDER",
+    "label": "Fender Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01bd",
+    "area": "PASSENGER_SIDE",
+    "subArea": "FRONT_DOOR",
+    "label": "Front Door Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01be",
+    "area": "PASSENGER_SIDE",
+    "subArea": "FRONT_WHEEL",
+    "label": "Front Wheel Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01bf",
+    "area": "PASSENGER_SIDE",
+    "subArea": "MIRROR",
+    "label": "Side Mirror Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c0",
+    "area": "PASSENGER_SIDE",
+    "subArea": "QUATER",
+    "label": "Quater Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c1",
+    "area": "PASSENGER_SIDE",
+    "subArea": "REAR_DOOR",
+    "label": "Rear Door Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c2",
+    "area": "PASSENGER_SIDE",
+    "subArea": "REAR_WHEEL",
+    "label": "Rear Wheel Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c3",
+    "area": "PASSENGER_SIDE",
+    "subArea": "ROCKER_PANEL",
+    "label": "Rocker Panel Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c4",
+    "area": "PASSENGER_SIDE",
+    "subArea": "UPPER_QUATER",
+    "label": "Upper Quater Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c5",
+    "area": "REAR",
+    "label": "Rear",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c6",
+    "area": "REAR",
+    "subArea": "DRIVER_SIDE_BUMPER",
+    "label": "Rear Bumper Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c7",
+    "area": "REAR",
+    "subArea": "DRIVER_SIDE_TAIL_LIGHT",
+    "label": "Tail light Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c8",
+    "area": "REAR",
+    "subArea": "PASSENGER_SIDE_BUMPER",
+    "label": "Rear Bumper Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01c9",
+    "area": "REAR",
+    "subArea": "PASSENGER_SIDE_TAIL_LIGHT",
+    "label": "Tail light Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01ca",
+    "area": "REAR",
+    "subArea": "BOOT",
+    "label": "Rear Boot",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01cb",
+    "area": "REAR",
+    "subArea": "WIND_SCREEN",
+    "label": "Rear Windscreen",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01cc",
+    "area": "INTERIOR",
+    "subArea": "ROOF",
+    "label": "Top Roof",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01cd",
+    "area": "INTERIOR",
+    "subArea": "DASHBOARD",
+    "label": "Dashboard",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01ce",
+    "area": "INTERIOR",
+    "subArea": "REAR_DASHBOARD",
+    "label": "Rear Dashboard",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01cf",
+    "area": "INTERIOR",
+    "subArea": "DRIVER_SIDE_FRONT_DOOR",
+    "label": "Front door interior Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d0",
+    "area": "INTERIOR",
+    "subArea": "DRIVER_SIDE_FRONT_SEAT",
+    "label": "Front Seat Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d1",
+    "area": "INTERIOR",
+    "subArea": "DRIVER_SIDE_REAR_DOOR",
+    "label": "Rear door interior Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d2",
+    "area": "INTERIOR",
+    "subArea": "DRIVER_SIDE_REAR_SEAT",
+    "label": "Rear Seat Driver side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d3",
+    "area": "INTERIOR",
+    "subArea": "GEAR_AREA",
+    "label": "Gear Area",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d4",
+    "area": "INTERIOR",
+    "subArea": "REAR_MIDDLE_SEAT",
+    "label": "Rear Middle Seat",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d5",
+    "area": "INTERIOR",
+    "subArea": "PASSENGER_SIDE_FRONT_DOOR",
+    "label": "Rear door interior Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d6",
+    "area": "INTERIOR",
+    "subArea": "PASSENGER_SIDE_FRONT_SEAT",
+    "label": "Front Seat Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d7",
+    "area": "INTERIOR",
+    "subArea": "PASSENGER_SIDE_REAR_DOOR",
+    "label": "Rear Door Interior Passenger Side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d8",
+    "area": "INTERIOR",
+    "subArea": "PASSENGER_SIDE_REAR_SEAT",
+    "label": "Rear Seat Passenger side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "_id": "60b88434301e594fdbca01d9",
+    "area": "INTERIOR",
+    "subArea": "STEERING",
+    "label": "Steering",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "GLASS",
+    "subArea": "FRONT_WINDSHIELD",
+    "label": "Windshield Front",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "GLASS",
+    "subArea": "REAR_WINDSHIELD",
+    "label": "Windshield Rear",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "GLASS",
+    "subArea": "REAR_WINDSHIELD",
+    "label": "Windshield Rear",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "GLASS",
+    "subArea": "FRONT_PASSENGER_WINDOW",
+    "label": "Window Front Passenger",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "GLASS",
+    "subArea": "REAR_PASSENGER_WINDOW",
+    "label": "Window Rear Passenger",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "GLASS",
+    "subArea": "REAR_DRIVER_WINDOW",
+    "label": "Window Rear Driver",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "GLASS",
+    "subArea": "FRONT_DRIVER_WINDOW",
+    "label": "Window Front Driver",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "TYRE",
+    "subArea": "SPARE_WHEEL",
+    "label": "Spare Wheel",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "TYRE",
+    "subArea": "PASSENGER_SIDE_REAR_WHEEL",
+    "label": "Rear WheelPassenger Side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "TYRE",
+    "subArea": "DRIVER_SIDE_REAR_WHEEL",
+    "label": "Rear WheelDiver Side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "TYRE",
+    "subArea": "PASSENGER_SIDE_FRONT_WHEEL",
+    "label": "Front WheelPassenger Side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  },
+  {
+    "area": "TYRE",
+    "subArea": "DRIVER_SIDE_FRONT_WHEEL",
+    "label": "Front WheelDiver Side",
+    "_class": "com.carscan.core.service.model.documents.AssessmentFileLabels"
+  }
+]

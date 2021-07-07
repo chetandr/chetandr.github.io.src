@@ -3,13 +3,14 @@ import Konva from "konva";
 import { Stage, Layer, Rect, Circle, Image } from "react-konva";
 import { carParts } from "./carparts";
 import useImage from "use-image";
-import { startCase } from "lodash";
+import { startCase, kebabCase } from "lodash";
 import Check from "@material-ui/icons/Check";
 const ImagePart = (props) => {
   const [image] = useImage(`/images/carparts/${props.damagePartSection}/${props.img}`);
   const [overlayImage] = useImage(
     `/images/carparts/overlays/${props.damagePartSection}/${props.img}`
   );
+  
   const [selected, setSelected] = React.useState(false);
   const overlay = { x: props.x, y: props.y };
   // if(image) {
@@ -22,6 +23,7 @@ const ImagePart = (props) => {
     props.handleSelection(startCase(props.type));
     // setSelected(!selected)
   };
+  console.log(props.selected);
   return (
     <React.Fragment>
       <Image
@@ -33,6 +35,8 @@ const ImagePart = (props) => {
         scaleX={props.scaleX}
         scaleY={props.scaleY}
         hue={255}
+        key={kebabCase(props.type)}       
+        
       />
       {props.selected && (
         <Image
@@ -48,6 +52,7 @@ const ImagePart = (props) => {
           scaleY={props.scaleY}
           onClick={(e) => handleClick(startCase(props.type))}
           onTouchEnd={(e) => handleClick(startCase(props.type))}
+          key={`${kebabCase(props.type)}-overlay`}  
           // hue={255}
         />
       )}

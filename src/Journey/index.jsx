@@ -39,17 +39,20 @@ const getCurrentAndNext = (type, sub, step) => {
   // findIndex(journeyData, (mj:StepData) => mj.type === type && mj.step == step);
   // debugger;
 
+  console.log("Module", type, sub, step);
   const currentIndex = findIndex(journeyData, (mj) => {
-    if (mj.step) {
-      return (
-        mj.type.toLowerCase() === type.toLowerCase() &&
-        mj.sub.toLowerCase() === sub.toLowerCase() &&
-        mj.step.toLowerCase() === step.toLowerCase()
-      );
-    } else {
+    if (!step) {
       return (
         mj.type.toLowerCase() === type.toLowerCase() &&
         mj.sub.toLowerCase() === sub.toLowerCase()
+      );
+      
+    } else {
+      return (
+        mj.type.toLowerCase() === type.toLowerCase() &&
+        mj.sub.toLowerCase() === sub.toLowerCase() &&
+        mj.step &&
+        mj.step.toLowerCase() === step.toLowerCase()
       );
     }
   });
@@ -101,13 +104,14 @@ const Journey = () => {
     sub = journeyData[0].sub;
     step = journeyData[0].step;
   }
+
   const getFormatedStep = (assessmentType, step) => {
     return `${assessmentType.toLowerCase()}-${startCase(
       replace(step.toLowerCase(), /\s/g, "")
     )}`;
   };
-  console.log("ACTIONS", type, sub, step);
   const { currentIndex, nextIndex } = getCurrentAndNext(type, sub, step);
+  console.log("ACTIONS", type, sub, step, currentIndex, nextIndex);
   // Method called when the next action is to be loaded
   const nextAction = (data) => {
     CaptureStore.next("INIT");
@@ -172,16 +176,17 @@ const Journey = () => {
   // Get the Component to be rendered currently
   const getComposed = ({ type, sub, step }) => {
     let Component = [];
-    console.log("Module", startCase(type), startCase(sub).split(" ").join(""));
+    const { currentIndex } = getCurrentAndNext(type, sub, step);
+    console.log("Module", startCase(type), startCase(sub).split(" ").join(""), step,currentIndex);
     if (type) {
       const newComponent = React.createElement(
         JourneyModule[startCase(type)][startCase(sub)].default,
         {
+          ...journeyData[currentIndex],
           nextAction,
           toggleWaiting,
           mediaCaptureStore,
-          ...journeyData[currentIndex],
-          side: step
+          // side: step
         }
       );
       Component.push(newComponent);
@@ -204,9 +209,10 @@ const Journey = () => {
   }
   const currentAction = journeyData[currentIndex];
   console.log(
-    "TYPE",
+    "MJ",
     type,
     sub,
+    step,
     whiteLabel,
     type && sub && currentAction,
     currentAction
@@ -221,7 +227,7 @@ const Journey = () => {
               {currentAction.container ? (
                 <Container>
                   <ErrorBoundary>
-                    {type && sub && getComposed({ type, sub, step })}
+                    {type && sub && getComposed({ type, sub, step, t:"One" })}
                   </ErrorBoundary>
                 </Container>
               ) : (
@@ -233,6 +239,7 @@ const Journey = () => {
                         type,
                         sub,
                         step,
+                        t:"two"
                       })}
                     </Box>
                   </ErrorBoundary>
@@ -245,7 +252,7 @@ const Journey = () => {
             {currentAction.container ? (
               <Container>
                 <ErrorBoundary>
-                  {type && sub && getComposed({ type, sub, step })}
+                  {type && sub && getComposed({ type, sub, step, t:"three" })}
                 </ErrorBoundary>
               </Container>
             ) : (
@@ -257,6 +264,7 @@ const Journey = () => {
                       type,
                       sub,
                       step,
+                      t:"four"
                     })}
                   </Box>
                 </ErrorBoundary>

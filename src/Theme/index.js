@@ -3,6 +3,7 @@ import ThemeStore from "../Stores/ThemeStore";
 const CSAItheme = (tokens) => {
   console.log("TOKENS", tokens);
   return createMuiTheme({
+    // spacing: "1vw",
     typography: {
       fontFamily: [
         "Roboto",
@@ -39,17 +40,17 @@ const CSAItheme = (tokens) => {
           borderTopRightRadius: "16px",
         },
       },
-      MuiToggleButtonGroup : {
-        root : {
-          width : "80%",
-        }
+      MuiToggleButtonGroup: {
+        root: {
+          width: "80%",
+        },
       },
       MuiToggleButton: {
         root: {
           backgroundColor: "rgb(255,255,255,.3)",
           color: "#fff",
           padding: "1vw",
-          width : "50%",
+          width: "50%",
           lineHeight: "1",
           "&:hover": {
             backgroundColor: "rgb(255,255,255,0.5)",
@@ -60,10 +61,26 @@ const CSAItheme = (tokens) => {
             backgroundColor: "#7EF424",
             color: "#000",
             "&:hover": {
-              backgroundColor:"#7EF424",
+              backgroundColor: "#7EF424",
               color: "#000",
             },
           },
+        },
+      },
+      MuiDialogTitle: {
+        root: {
+          padding: 0,
+        },
+      },
+      MuiGrid: {
+        root: {
+          margin: ".5vw",
+        },
+      },
+      MuiOutlinedInput: {
+        inputMarginDense: {
+          paddingTop: ".5vw",
+          paddingBottom: ".5vw",
         },
       },
     },

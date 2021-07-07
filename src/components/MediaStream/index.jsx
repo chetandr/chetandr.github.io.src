@@ -654,6 +654,7 @@ const MediaStream = (props) => {
         image
       </a>
       <MyPreview />
+      {stage === "INIT" && <Box style={{position: "absolute", width:"100vw", height:"100vh", backgroundColor:"rgb(39,24,53, .5)"}}></Box>}
       {stage === "INIT" && <CaptureButton onClick={captureImage} />}
       {stage === "CAPTURED" && <AcceptButton onClick={verifiedImage} />}
 

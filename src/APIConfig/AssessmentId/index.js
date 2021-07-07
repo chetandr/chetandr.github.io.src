@@ -5,7 +5,7 @@ const AssessmentId$ = (otp, fieldOne) => from(Axios.post(`/cardata/companies/${o
     "captcha_id": "60cb91e6a1673b6e53f595fa",
     "captcha_token": "cu2wy",
     "device_id": "b04d837c-3539-430e-b9ae-159dcbe1e96b",
-    "field_one": fieldOne || "9876567654",
+    "field_one": `${fieldOne.substring(0,10)}***` || "9876567654",
     "notification_reg_id": "123456789"
 }));
 

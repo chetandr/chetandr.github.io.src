@@ -419,7 +419,7 @@ const License = (props) => {
           </Grid>
         </Box>
         <DialogActions>
-          <Box mb={1} style={{ width: "50vw", margin: "32px auto" }}>
+          <Box mb={1} style={{ width: "50vw", margin: "0 auto", marginBottom: "1vw" }}>
             <RoundedButton
               label={t("Confirm")}
               onClick={handleClicked}

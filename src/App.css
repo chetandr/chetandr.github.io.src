@@ -263,6 +263,7 @@
 body {
   font-family: "Sen", sans-serif;
   background: #fff;
+  font-size: 2vw;
 }
 
 .container {
@@ -594,7 +595,7 @@ body {
 }
 .iDInput,
 .iDInput:focus-visible {
-  font-size: 3.2rem;
+  font-size: 3rem;
   width: 100%;
   border: none;
   border-bottom: 2px solid;
